@@ -32,7 +32,7 @@ export function AppLayout() {
         <SidebarHeader className="px-4 py-5">
           <div className="flex items-center gap-2">
             <img
-              src="/buurekrom.png"
+              src="/buurekrom.svg"
               alt=""
               aria-hidden="true"
               className="h-9 w-9 object-contain"

@@ -65,7 +65,7 @@ export function LoginPage() {
       >
         <div className="flex flex-row items-center justify-center gap-2">
           <img
-            src="/buurekrom.png"
+            src="/buurekrom.svg"
             alt="Buurekrom"
             className="h-12 w-12 object-contain"
           />
