@@ -28,10 +28,7 @@ export function MapPage() {
 
   const handleLocationError = useCallback(() => setLocationFailed(true), []);
 
-  const handleLocationRequest = useCallback(
-    () => setLocationFailed(false),
-    [],
-  );
+  const handleLocationRequest = useCallback(() => setLocationFailed(false), []);
 
   const toggleSelect = useCallback((id: number) => {
     setSelectedIds((prev) => {
