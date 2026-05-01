@@ -1,0 +1,33 @@
+spring:
+  application:
+    name: Buurekrom
+
+  datasource:
+    url: jdbc:h2:mem:buurekrom;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    open-in-view: false
+    database-platform: org.hibernate.dialect.H2Dialect
+
+  flyway:
+    enabled: false
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
+logging:
+  level:
+    root: INFO
+
+server:
+  servlet:
+    session:
+      cookie:
+        name: BPSESSION
+        http-only: true
+        same-site: lax
+      timeout: 12h
