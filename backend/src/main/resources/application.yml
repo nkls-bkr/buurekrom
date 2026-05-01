@@ -1,0 +1,28 @@
+spring:
+  application:
+    name: Buurekrom
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
+server:
+  servlet:
+    session:
+      cookie:
+        name: BPSESSION
+        http-only: true
+        same-site: lax
+      timeout: 12h
