@@ -6,6 +6,7 @@ target/
 
 .env
 .agents
+frontend/dev-dist/
 
 ### STS ###
 .apt_generated
