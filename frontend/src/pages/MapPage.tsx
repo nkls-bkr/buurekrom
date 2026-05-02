@@ -10,6 +10,7 @@ import { LocationMarker } from "@/features/map/components/LocationMarker";
 import { RoutesLayer } from "@/features/map/components/RoutesLayer";
 import { RouteToolbar } from "@/features/map/components/RouteToolbar";
 import type { RouteResponse } from "@/features/routes/api";
+import {LocationsLayer} from "@/features/map/components/LocationsLayer.tsx";
 
 export function MapPage() {
   const [position, setPosition] = useState<LatLngLiteral | null>(null);
@@ -72,6 +73,7 @@ export function MapPage() {
           maxNativeZoom={19}
         />
         <FieldsLayer selectedIds={selectedIds} onToggleSelect={toggleSelect} />
+          <LocationsLayer></LocationsLayer>
         <RoutesLayer
           fieldIds={selectedIdList}
           selectedRouteId={selectedRoute?.id ?? null}
