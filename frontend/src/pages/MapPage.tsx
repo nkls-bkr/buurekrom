@@ -10,6 +10,7 @@ import { LocationMarker } from "@/features/map/components/LocationMarker";
 import { RoutesLayer } from "@/features/map/components/RoutesLayer";
 import { RouteToolbar } from "@/features/map/components/RouteToolbar";
 import type { RouteResponse } from "@/features/routes/api";
+import { CENTER_OF_GERMANY } from "@/constants.ts";
 import {LocationsLayer} from "@/features/map/components/LocationsLayer.tsx";
 
 export function MapPage() {
@@ -60,7 +61,7 @@ export function MapPage() {
   return (
     <div className="relative h-full w-full">
       <MapContainer
-        center={[51.08, 10.42]}
+        center={CENTER_OF_GERMANY}
         zoom={6}
         maxZoom={28}
         zoomControl={false}
