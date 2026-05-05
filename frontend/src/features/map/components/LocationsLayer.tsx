@@ -1,4 +1,4 @@
-import { Marker, Popup, useMap } from "react-leaflet";
+import { Marker, Popup } from "react-leaflet";
 import { useLocations } from "@/features/location/api.ts";
 
 export function LocationsLayer() {
