@@ -11,7 +11,8 @@ import { RoutesLayer } from "@/features/map/components/RoutesLayer";
 import { RouteToolbar } from "@/features/map/components/RouteToolbar";
 import type { RouteResponse } from "@/features/routes/api";
 import { CENTER_OF_GERMANY } from "@/constants.ts";
-import {LocationsLayer} from "@/features/map/components/LocationsLayer.tsx";
+import { LocationsLayer } from "@/features/map/components/LocationsLayer.tsx";
+import { DrawLocationButton } from "@/features/map/components/DrawLocationButton.tsx";
 
 export function MapPage() {
   const [position, setPosition] = useState<LatLngLiteral | null>(null);
@@ -74,7 +75,7 @@ export function MapPage() {
           maxNativeZoom={19}
         />
         <FieldsLayer selectedIds={selectedIds} onToggleSelect={toggleSelect} />
-          <LocationsLayer></LocationsLayer>
+        <LocationsLayer></LocationsLayer>
         <RoutesLayer
           fieldIds={selectedIdList}
           selectedRouteId={selectedRoute?.id ?? null}
@@ -99,6 +100,7 @@ export function MapPage() {
           />
           <DrawFieldButton />
           <DrawRouteButton fieldId={singleSelectedFieldId} />
+          <DrawLocationButton />
         </div>
       </MapContainer>
       <RouteToolbar route={selectedRoute} onClose={clearRouteSelection} />
