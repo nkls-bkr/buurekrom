@@ -12,12 +12,15 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useCreateLocationMutation } from "@/features/location/api.ts";
 
 export function DrawLocationButton() {
   const map = useMap();
   const [drawing, setDrawing] = useState(false);
   const [pendingGeometry, setPendingGeometry] = useState<Point | null>(null);
+  const [name, setName] = useState("");
   const result = useCreateLocationMutation();
 
   function startDraw() {
@@ -42,6 +45,16 @@ export function DrawLocationButton() {
 
   function cancelSave() {
     setPendingGeometry(null);
+    setName("");
+  }
+
+  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!pendingGeometry || !name.trim()) return;
+    result.mutate(
+      { name: name.trim(), geometry: pendingGeometry },
+      { onSuccess: cancelSave },
+    );
   }
 
   return (
@@ -60,9 +73,6 @@ export function DrawLocationButton() {
 
       {drawing && (
         <div className="fixed bottom-6 left-1/2 z-1000 flex -translate-x-1/2 flex-col items-center gap-3">
-          <span className="rounded-full bg-card px-4 py-1.5 text-label-md shadow-card">
-            Tippe auf die Karte, um einen Standort zu setzen
-          </span>
           <Button
             variant="outline"
             size="sm"
@@ -80,18 +90,29 @@ export function DrawLocationButton() {
         onOpenChange={(open) => !open && cancelSave()}
       >
         <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Standort benennen</DialogTitle>
-          </DialogHeader>
-          {/* TODO: form fields */}
-          <DialogFooter>
-            <Button variant="outline" onClick={cancelSave}>
-              Abbrechen
-            </Button>
-            <Button disabled={result.isPending}>
-              {result.isPending ? "Speichern …" : "Speichern"}
-            </Button>
-          </DialogFooter>
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            <DialogHeader>
+              <DialogTitle>Standort benennen</DialogTitle>
+            </DialogHeader>
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="location-name">Name</Label>
+              <Input
+                id="location-name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="z. B. Hofstelle"
+                autoFocus
+              />
+            </div>
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={cancelSave}>
+                Abbrechen
+              </Button>
+              <Button type="submit" disabled={!name.trim() || result.isPending}>
+                {result.isPending ? "Speichern …" : "Speichern"}
+              </Button>
+            </DialogFooter>
+          </form>
         </DialogContent>
       </Dialog>
     </>
