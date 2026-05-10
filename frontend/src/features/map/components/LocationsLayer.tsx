@@ -4,8 +4,6 @@ import { useLocations } from "@/features/location/api.ts";
 export function LocationsLayer() {
   const { data: locations } = useLocations();
 
-  console.log(locations);
-
   return (
     <>
       {locations?.map((location) => (
