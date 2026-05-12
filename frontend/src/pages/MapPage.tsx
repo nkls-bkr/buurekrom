@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useState } from "react";
 import { MapContainer, TileLayer } from "react-leaflet";
 import type { LatLngLiteral } from "leaflet";
 import { DeleteFieldsButton } from "@/features/map/components/DeleteFieldsButton";
@@ -13,13 +13,15 @@ import type { RouteResponse } from "@/features/routes/api";
 import { CENTER_OF_GERMANY } from "@/constants.ts";
 import { LocationsLayer } from "@/features/map/components/LocationsLayer.tsx";
 import { DrawLocationButton } from "@/features/map/components/DrawLocationButton.tsx";
+import {
+  SelectionKind,
+  useSelection,
+} from "@/features/map/selection/selection";
 
 export function MapPage() {
+  const { selection } = useSelection();
   const [position, setPosition] = useState<LatLngLiteral | null>(null);
   const [locationFailed, setLocationFailed] = useState(false);
-  const [selectedIds, setSelectedIds] = useState<ReadonlySet<number>>(
-    () => new Set(),
-  );
   const [selectedRoute, setSelectedRoute] = useState<RouteResponse | null>(
     null,
   );
@@ -33,31 +35,22 @@ export function MapPage() {
 
   const handleLocationRequest = useCallback(() => setLocationFailed(false), []);
 
-  const toggleSelect = useCallback((id: number) => {
-    setSelectedIds((prev) => {
-      if (prev.has(id)) {
-        setSelectedRoute((route) => (route?.fieldId === id ? null : route));
-        return new Set();
-      }
-      setSelectedRoute((route) => (route?.fieldId === id ? route : null));
-      return new Set([id]);
-    });
-  }, []);
-
-  const clearSelection = useCallback(() => {
-    setSelectedIds(new Set());
-    setSelectedRoute(null);
-  }, []);
-
+  //TODO route selection refactor with selectioncontext
   const handleRouteClick = useCallback((route: RouteResponse) => {
     setSelectedRoute((prev) => (prev?.id === route.id ? null : route));
   }, []);
 
   const clearRouteSelection = useCallback(() => setSelectedRoute(null), []);
 
-  const selectedIdList = useMemo(() => [...selectedIds], [selectedIds]);
-  const singleSelectedFieldId =
-    selectedIdList.length === 1 ? selectedIdList[0] : null;
+  const selectedFieldId =
+    selection?.kind === SelectionKind.Field ? selection.id : null;
+
+  const activeRoute =
+    selectedRoute && selectedRoute.fieldId === selectedFieldId
+      ? selectedRoute
+      : null;
+
+  const selectedFieldIds = selectedFieldId !== null ? [selectedFieldId] : [];
 
   return (
     <div className="relative h-full w-full">
@@ -74,11 +67,11 @@ export function MapPage() {
           maxZoom={28}
           maxNativeZoom={19}
         />
-        <FieldsLayer selectedIds={selectedIds} onToggleSelect={toggleSelect} />
+        <FieldsLayer />
         <LocationsLayer></LocationsLayer>
         <RoutesLayer
-          fieldIds={selectedIdList}
-          selectedRouteId={selectedRoute?.id ?? null}
+          fieldIds={selectedFieldIds}
+          selectedRouteId={activeRoute?.id ?? null}
           onRouteClick={handleRouteClick}
         />
         <LocationMarker
@@ -94,16 +87,13 @@ export function MapPage() {
             onError={handleLocationError}
             onRequest={handleLocationRequest}
           />
-          <DeleteFieldsButton
-            selectedIds={selectedIds}
-            onCleared={clearSelection}
-          />
+          <DeleteFieldsButton />
           <DrawFieldButton />
-          <DrawRouteButton fieldId={singleSelectedFieldId} />
+          <DrawRouteButton />
           <DrawLocationButton />
         </div>
       </MapContainer>
-      <RouteToolbar route={selectedRoute} onClose={clearRouteSelection} />
+      <RouteToolbar route={activeRoute} onClose={clearRouteSelection} />
     </div>
   );
 }

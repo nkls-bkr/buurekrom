@@ -10,31 +10,29 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useDeleteFieldsMutation } from "@/features/fields/api";
+import {
+  SelectionKind,
+  useSelection,
+} from "@/features/map/selection/selection";
 
-interface DeleteFieldsButtonProps {
-  selectedIds: ReadonlySet<number>;
-  onCleared: () => void;
-}
-
-export function DeleteFieldsButton({
-  selectedIds,
-  onCleared,
-}: DeleteFieldsButtonProps) {
+export function DeleteFieldsButton() {
+  const { selection, clear } = useSelection();
   const [confirmOpen, setConfirmOpen] = useState(false);
   const deleteFields = useDeleteFieldsMutation();
-  const count = selectedIds.size;
+
+  const selectedFieldId =
+    selection?.kind === SelectionKind.Field ? selection.id : null;
 
   function handleConfirm() {
-    deleteFields.mutate([...selectedIds], {
+    if (selectedFieldId === null) return;
+    deleteFields.mutate([selectedFieldId], {
       onSuccess: () => {
-        toast.success(
-          count === 1 ? "Feld gelöscht." : `${count} Felder gelöscht.`,
-        );
+        toast.success("Feld gelöscht.");
         setConfirmOpen(false);
-        onCleared();
+        clear();
       },
       onError: () => {
-        toast.error("Felder konnten nicht gelöscht werden.");
+        toast.error("Feld konnte nicht gelöscht werden.");
       },
     });
   }
@@ -45,9 +43,9 @@ export function DeleteFieldsButton({
         variant="secondary"
         size="icon"
         onClick={() => setConfirmOpen(true)}
-        disabled={count === 0}
+        disabled={selectedFieldId === null}
         className="relative shadow-card"
-        aria-label={count === 1 ? "1 Feld löschen" : `${count} Felder löschen`}
+        aria-label="Feld löschen"
       >
         <Trash2Icon className="size-4" />
       </Button>
@@ -55,9 +53,7 @@ export function DeleteFieldsButton({
       <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>
-              {count === 1 ? "Feld löschen?" : `${count} Felder löschen?`}
-            </DialogTitle>
+            <DialogTitle>Feld löschen?</DialogTitle>
           </DialogHeader>
           <p className="text-sm text-muted-foreground">
             Diese Aktion kann nicht rückgängig gemacht werden.

@@ -1,18 +1,18 @@
 import { Polygon } from "react-leaflet";
 import { useFields } from "@/features/fields/api";
+import {
+  SelectionKind,
+  useSelection,
+} from "@/features/map/selection/selection";
 
-interface FieldsLayerProps {
-  selectedIds: ReadonlySet<number>;
-  onToggleSelect: (id: number) => void;
-}
-
-export function FieldsLayer({ selectedIds, onToggleSelect }: FieldsLayerProps) {
+export function FieldsLayer() {
   const { data: fields } = useFields();
+  const { isSelected, toggle } = useSelection();
 
   return (
     <>
       {fields?.map((field) => {
-        const selected = selectedIds.has(field.id);
+        const selected = isSelected(SelectionKind.Field, field.id);
         return (
           <Polygon
             key={field.id}
@@ -35,7 +35,7 @@ export function FieldsLayer({ selectedIds, onToggleSelect }: FieldsLayerProps) {
                     weight: 2,
                   }
             }
-            eventHandlers={{ click: () => onToggleSelect(field.id) }}
+            eventHandlers={{ click: () => toggle("field", field.id) }}
           />
         );
       })}
