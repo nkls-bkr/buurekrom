@@ -14,6 +14,7 @@ public record LocationResponse(
         @Nonnull Long id,
         @Nullable String name,
         @Nonnull GeoJsonPoint geometry,
+        //TODO createdAt weg
         @Nullable LocalDateTime createdAt
 ) {
 

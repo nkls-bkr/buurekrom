@@ -9,7 +9,9 @@ import dev.bruenker.buurekrom.paths.service.UserService;
 import dev.bruenker.buurekrom.paths.shared.geojson.GeoJsonConverter;
 import jakarta.annotation.Nonnull;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -66,5 +68,11 @@ public class LocationController {
                 owner
         );
         return LocationResponse.from(location, geoJsonConverter);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable @Nonnull final Long id) {
+        locationService.delete(id);
     }
 }

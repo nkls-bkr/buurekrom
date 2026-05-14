@@ -94,9 +94,6 @@ export function DrawFieldButton() {
 
       {drawing && (
         <div className="fixed bottom-6 left-1/2 z-1000 flex -translate-x-1/2 flex-col items-center gap-3">
-          <span className="rounded-full bg-card px-4 py-1.5 text-label-md shadow-card">
-            Tippe Punkte, Doppeltipp zum Abschließen
-          </span>
           <Button
             variant="outline"
             size="sm"
