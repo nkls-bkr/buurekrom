@@ -15,12 +15,14 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useCreateRouteMutation } from "@/features/routes/api";
+import {
+  SelectionKind,
+  useSelection,
+} from "@/features/map/selection/selection";
 
-interface DrawRouteButtonProps {
-  fieldId: number | null;
-}
-
-export function DrawRouteButton({ fieldId }: DrawRouteButtonProps) {
+export function DrawRouteButton() {
+  const { selection } = useSelection();
+  const fieldId = selection?.kind === SelectionKind.Field ? selection.id : null;
   const map = useMap();
   const [drawing, setDrawing] = useState(false);
   const [pendingLayer, setPendingLayer] = useState<L.Layer | null>(null);

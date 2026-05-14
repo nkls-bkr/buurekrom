@@ -1,5 +1,6 @@
 package dev.bruenker.buurekrom.paths.service;
 
+import dev.bruenker.buurekrom.paths.exception.LocationNotFoundException;
 import dev.bruenker.buurekrom.paths.model.Location;
 import dev.bruenker.buurekrom.paths.model.User;
 import dev.bruenker.buurekrom.paths.repository.LocationRepository;
@@ -42,5 +43,15 @@ public class LocationService {
         final Location location = new Location(null, name, geometry, owner, null);
 
         return locationRepository.save(location);
+    }
+
+    public void delete(@Nonnull final Long id) {
+        requireNonNull(id, "id");
+
+        if (!locationRepository.existsById(id)) {
+            throw new LocationNotFoundException(id);
+        }
+
+        locationRepository.deleteById(id);
     }
 }
