@@ -10,31 +10,52 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useDeleteFieldsMutation } from "@/features/fields/api";
+import { useDeleteLocationMutation } from "@/features/location/api";
 import {
   SelectionKind,
   useSelection,
 } from "@/features/map/selection/selection";
 
-export function DeleteFieldsButton() {
+const LABELS = {
+  [SelectionKind.Field]: {
+    aria: "Feld löschen",
+    title: "Feld löschen?",
+    success: "Feld gelöscht.",
+    failure: "Feld konnte nicht gelöscht werden.",
+  },
+  [SelectionKind.Location]: {
+    aria: "Standort löschen",
+    title: "Standort löschen?",
+    success: "Standort gelöscht.",
+    failure: "Standort konnte nicht gelöscht werden.",
+  },
+} as const;
+
+export function DeleteSelectionButton() {
   const { selection, clear } = useSelection();
   const [confirmOpen, setConfirmOpen] = useState(false);
   const deleteFields = useDeleteFieldsMutation();
+  const deleteLocation = useDeleteLocationMutation();
 
-  const selectedFieldId =
-    selection?.kind === SelectionKind.Field ? selection.id : null;
+  const labels = selection ? LABELS[selection.kind] : null;
+  const isPending = deleteFields.isPending || deleteLocation.isPending;
 
   function handleConfirm() {
-    if (selectedFieldId === null) return;
-    deleteFields.mutate([selectedFieldId], {
-      onSuccess: () => {
-        toast.success("Feld gelöscht.");
-        setConfirmOpen(false);
-        clear();
-      },
-      onError: () => {
-        toast.error("Feld konnte nicht gelöscht werden.");
-      },
-    });
+    if (!selection) return;
+    const onSuccess = () => {
+      toast.success(LABELS[selection.kind].success);
+      setConfirmOpen(false);
+      clear();
+    };
+    const onError = () => {
+      toast.error(LABELS[selection.kind].failure);
+    };
+
+    if (selection.kind === SelectionKind.Field) {
+      deleteFields.mutate([selection.id], { onSuccess, onError });
+    } else {
+      deleteLocation.mutate(selection.id, { onSuccess, onError });
+    }
   }
 
   return (
@@ -43,9 +64,9 @@ export function DeleteFieldsButton() {
         variant="secondary"
         size="icon"
         onClick={() => setConfirmOpen(true)}
-        disabled={selectedFieldId === null}
+        disabled={selection === null}
         className="relative shadow-card"
-        aria-label="Feld löschen"
+        aria-label={labels?.aria ?? "Auswahl löschen"}
       >
         <Trash2Icon className="size-4" />
       </Button>
@@ -53,7 +74,7 @@ export function DeleteFieldsButton() {
       <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Feld löschen?</DialogTitle>
+            <DialogTitle>{labels?.title ?? "Löschen?"}</DialogTitle>
           </DialogHeader>
           <p className="text-sm text-muted-foreground">
             Diese Aktion kann nicht rückgängig gemacht werden.
@@ -65,9 +86,9 @@ export function DeleteFieldsButton() {
             <Button
               variant="destructive"
               onClick={handleConfirm}
-              disabled={deleteFields.isPending}
+              disabled={isPending}
             >
-              {deleteFields.isPending ? "Löschen …" : "Löschen"}
+              {isPending ? "Löschen …" : "Löschen"}
             </Button>
           </DialogFooter>
         </DialogContent>

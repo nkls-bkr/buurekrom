@@ -1,7 +1,7 @@
 import { useCallback, useState } from "react";
 import { MapContainer, TileLayer } from "react-leaflet";
 import type { LatLngLiteral } from "leaflet";
-import { DeleteFieldsButton } from "@/features/map/components/DeleteFieldsButton";
+import { DeleteSelectionButton } from "@/features/map/components/DeleteSelectionButton";
 import { DrawFieldButton } from "@/features/map/components/DrawFieldButton";
 import { DrawRouteButton } from "@/features/map/components/DrawRouteButton";
 import { FieldsLayer } from "@/features/map/components/FieldsLayer";
@@ -87,7 +87,7 @@ export function MapPage() {
             onError={handleLocationError}
             onRequest={handleLocationRequest}
           />
-          <DeleteFieldsButton />
+          <DeleteSelectionButton />
           <DrawFieldButton />
           <DrawRouteButton />
           <DrawLocationButton />

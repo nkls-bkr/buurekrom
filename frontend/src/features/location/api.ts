@@ -32,6 +32,10 @@ async function createLocation(
   });
 }
 
+async function deleteLocation(id: number): Promise<void> {
+  await apiFetch<void>(`/locations/${id}`, { method: "DELETE" });
+}
+
 export function useLocations() {
   return useQuery({ queryKey: LOCATIONS_KEY, queryFn: fetchLocations });
 }
@@ -40,6 +44,14 @@ export function useCreateLocationMutation() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: createLocation,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: LOCATIONS_KEY }),
+  });
+}
+
+export function useDeleteLocationMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: deleteLocation,
     onSuccess: () => queryClient.invalidateQueries({ queryKey: LOCATIONS_KEY }),
   });
 }
