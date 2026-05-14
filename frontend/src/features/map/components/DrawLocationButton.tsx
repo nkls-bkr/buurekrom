@@ -15,6 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useCreateLocationMutation } from "@/features/location/api.ts";
+import { LOCATION_ICON } from "@/features/map/components/locationIcon";
 
 export function DrawLocationButton() {
   const map = useMap();
@@ -26,6 +27,7 @@ export function DrawLocationButton() {
   function startDraw() {
     map.pm.enableDraw("Marker", {
       snappable: false,
+      markerStyle: { icon: LOCATION_ICON },
     });
     setDrawing(true);
 
