@@ -79,7 +79,7 @@ export function MapPage() {
           onPosition={handlePosition}
           onError={handleLocationError}
         />
-        <div className="absolute bottom-6 left-4 z-1000 flex flex-col-reverse gap-2">
+        <div className="absolute bottom-6 left-4 z-1000 flex flex-col-reverse gap-6">
           <LocateButton
             position={position}
             failed={locationFailed}
@@ -87,10 +87,12 @@ export function MapPage() {
             onError={handleLocationError}
             onRequest={handleLocationRequest}
           />
-          <DeleteSelectionButton />
-          <DrawFieldButton />
-          <DrawRouteButton />
-          <DrawLocationButton />
+          <div className="flex flex-col-reverse gap-2">
+            <DeleteSelectionButton />
+            <DrawFieldButton />
+            <DrawRouteButton />
+            <DrawLocationButton />
+          </div>
         </div>
       </MapContainer>
       <RouteToolbar route={activeRoute} onClose={clearRouteSelection} />
