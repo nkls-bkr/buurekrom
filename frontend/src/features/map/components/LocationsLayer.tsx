@@ -8,6 +8,7 @@ import {
   SelectionKind,
   useSelection,
 } from "@/features/map/selection/selection";
+import { Z_INDEX_LOCATION_MARKER } from "@/shared/z-index.layers.ts";
 
 export function LocationsLayer() {
   const { data: locations } = useLocations();
@@ -19,6 +20,7 @@ export function LocationsLayer() {
         const selected = isSelected(SelectionKind.Location, location.id);
         return (
           <Marker
+            zIndexOffset={Z_INDEX_LOCATION_MARKER}
             key={location.id}
             position={{
               lat: location.geometry.coordinates[1],

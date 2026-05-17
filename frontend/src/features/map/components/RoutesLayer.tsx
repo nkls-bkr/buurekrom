@@ -28,17 +28,6 @@ export function RoutesLayer({
             <Polyline
               positions={positions}
               pathOptions={{
-                color: "#fdf9f0",
-                weight: selected ? 11 : 8,
-                opacity: dimmed ? 0.15 : 0.9,
-                lineCap: "round",
-                lineJoin: "round",
-              }}
-              eventHandlers={handlers}
-            />
-            <Polyline
-              positions={positions}
-              pathOptions={{
                 color: selected ? "#c2410c" : "#e8590c",
                 weight: selected ? 7 : 5,
                 opacity: dimmed ? 0.2 : 1,
