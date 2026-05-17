@@ -45,7 +45,7 @@ export function AppLayout() {
                 </span>
               </span>
               <span className="text-[0.625rem] font-medium text-outline-variant">
-                v0.0.5 | Entwicklungsumgebung
+                v0.0.6 | Entwicklungsumgebung
               </span>
             </div>
           </div>
