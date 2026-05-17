@@ -1,6 +1,7 @@
 import { Fragment } from "react";
-import { CircleMarker, Polyline } from "react-leaflet";
+import { Pane, Polyline } from "react-leaflet";
 import { useRoutes, type RouteResponse } from "@/features/routes/api";
+import { ROUTES_PANE, Z_INDEX_ROUTES_PANE } from "@/shared/z-index.layers.ts";
 
 interface RoutesLayerProps {
   selectedRouteId: number | null;
@@ -15,7 +16,7 @@ export function RoutesLayer({
   const routes = data ?? [];
 
   return (
-    <>
+    <Pane name={ROUTES_PANE} style={{ zIndex: Z_INDEX_ROUTES_PANE }}>
       {routes.map((route) => {
         const positions = route.geometry.coordinates.map<[number, number]>(
           ([lng, lat]) => [lat, lng],
@@ -26,6 +27,7 @@ export function RoutesLayer({
         return (
           <Fragment key={route.id}>
             <Polyline
+              pane={ROUTES_PANE}
               positions={positions}
               pathOptions={{
                 color: selected ? "#c2410c" : "#e8590c",
@@ -36,37 +38,9 @@ export function RoutesLayer({
               }}
               eventHandlers={handlers}
             />
-            {positions.length > 0 && (
-              <>
-                <CircleMarker
-                  center={positions[0]}
-                  radius={selected ? 8 : 6}
-                  pathOptions={{
-                    color: "#fdf9f0",
-                    weight: 2,
-                    fillColor: "#16a34a",
-                    fillOpacity: dimmed ? 0.25 : 1,
-                    opacity: dimmed ? 0.25 : 1,
-                  }}
-                  eventHandlers={handlers}
-                />
-                <CircleMarker
-                  center={positions[positions.length - 1]}
-                  radius={selected ? 8 : 6}
-                  pathOptions={{
-                    color: "#fdf9f0",
-                    weight: 2,
-                    fillColor: "#b91c1c",
-                    fillOpacity: dimmed ? 0.25 : 1,
-                    opacity: dimmed ? 0.25 : 1,
-                  }}
-                  eventHandlers={handlers}
-                />
-              </>
-            )}
           </Fragment>
         );
       })}
-    </>
+    </Pane>
   );
 }
