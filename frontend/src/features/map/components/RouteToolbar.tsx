@@ -25,19 +25,16 @@ export function RouteToolbar({ route, onClose }: RouteToolbarProps) {
 
   function handleConfirm() {
     if (!route) return;
-    deleteRoute.mutate(
-      { fieldId: route.fieldId, routeId: route.id },
-      {
-        onSuccess: () => {
-          toast.success("Route gelöscht.");
-          setConfirmOpen(false);
-          onClose();
-        },
-        onError: () => {
-          toast.error("Route konnte nicht gelöscht werden.");
-        },
+    deleteRoute.mutate(route.id, {
+      onSuccess: () => {
+        toast.success("Route gelöscht.");
+        setConfirmOpen(false);
+        onClose();
       },
-    );
+      onError: () => {
+        toast.error("Route konnte nicht gelöscht werden.");
+      },
+    });
   }
 
   return (

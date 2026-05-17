@@ -1,20 +1,18 @@
 import { Fragment } from "react";
 import { CircleMarker, Polyline } from "react-leaflet";
-import { useRoutesForFields, type RouteResponse } from "@/features/routes/api";
+import { useRoutes, type RouteResponse } from "@/features/routes/api";
 
 interface RoutesLayerProps {
-  fieldIds: readonly number[];
   selectedRouteId: number | null;
   onRouteClick: (route: RouteResponse) => void;
 }
 
 export function RoutesLayer({
-  fieldIds,
   selectedRouteId,
   onRouteClick,
 }: RoutesLayerProps) {
-  const queries = useRoutesForFields(fieldIds);
-  const routes = queries.flatMap((q) => q.data ?? []);
+  const { data } = useRoutes();
+  const routes = data ?? [];
 
   return (
     <>
