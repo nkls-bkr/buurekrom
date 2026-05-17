@@ -8,8 +8,6 @@ import org.hibernate.annotations.UpdateTimestamp;
 import org.locationtech.jts.geom.Polygon;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
 
 import static java.util.Objects.requireNonNull;
 
@@ -44,10 +42,6 @@ public class Field {
     @Column(name = "updated_at", nullable = false)
     @Nullable
     private LocalDateTime updatedAt;
-
-    @OneToMany(mappedBy = "field", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Nonnull
-    private final Set<Route> routes = new HashSet<>();
 
     public Field() {
     }
@@ -120,10 +114,5 @@ public class Field {
 
     public void setUpdatedAt(@Nullable final LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
-    }
-
-    @Nonnull
-    public Set<Route> getRoutes() {
-        return routes;
     }
 }

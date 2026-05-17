@@ -1,4 +1,4 @@
-import { useMutation, useQueries, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "@/shared/http";
 
 interface GeoJsonLineString {
@@ -15,62 +15,49 @@ export interface RouteResponse {
   id: number;
   name: string | null;
   geometry: GeoJsonLineString;
-  fieldId: number;
   createdAt: string | null;
 }
 
-const routesKey = (fieldId: number) => ["routes", fieldId] as const;
+const routesKey = ["routes"] as const;
 
-async function fetchRoutes(fieldId: number): Promise<RouteResponse[]> {
-  return apiFetch<RouteResponse[]>(`/fields/${fieldId}/routes`);
+async function fetchRoutes(): Promise<RouteResponse[]> {
+  return apiFetch<RouteResponse[]>(`/routes`);
 }
 
 async function createRoute(
-  fieldId: number,
   request: CreateRouteRequest,
 ): Promise<RouteResponse> {
-  return apiFetch<RouteResponse>(`/fields/${fieldId}/routes`, {
+  return apiFetch<RouteResponse>(`/routes`, {
     method: "POST",
     body: JSON.stringify(request),
   });
 }
 
-async function deleteRoute(fieldId: number, routeId: number): Promise<void> {
-  await apiFetch<void>(`/fields/${fieldId}/routes/${routeId}`, {
+async function deleteRoute(routeId: number): Promise<void> {
+  await apiFetch<void>(`/routes/${routeId}`, {
     method: "DELETE",
   });
 }
 
-export function useRoutesForFields(fieldIds: readonly number[]) {
-  return useQueries({
-    queries: fieldIds.map((id) => ({
-      queryKey: routesKey(id),
-      queryFn: () => fetchRoutes(id),
-    })),
+export function useRoutes() {
+  return useQuery({
+    queryKey: routesKey,
+    queryFn: fetchRoutes,
   });
 }
 
 export function useCreateRouteMutation() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({
-      fieldId,
-      request,
-    }: {
-      fieldId: number;
-      request: CreateRouteRequest;
-    }) => createRoute(fieldId, request),
-    onSuccess: (_route, { fieldId }) =>
-      queryClient.invalidateQueries({ queryKey: routesKey(fieldId) }),
+    mutationFn: (request: CreateRouteRequest) => createRoute(request),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: routesKey }),
   });
 }
 
 export function useDeleteRouteMutation() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ fieldId, routeId }: { fieldId: number; routeId: number }) =>
-      deleteRoute(fieldId, routeId),
-    onSuccess: (_v, { fieldId }) =>
-      queryClient.invalidateQueries({ queryKey: routesKey(fieldId) }),
+    mutationFn: (routeId: number) => deleteRoute(routeId),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: routesKey }),
   });
 }

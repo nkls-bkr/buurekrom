@@ -13,13 +13,8 @@ import type { RouteResponse } from "@/features/routes/api";
 import { CENTER_OF_GERMANY } from "@/constants.ts";
 import { LocationsLayer } from "@/features/map/components/LocationsLayer.tsx";
 import { DrawLocationButton } from "@/features/map/components/DrawLocationButton.tsx";
-import {
-  SelectionKind,
-  useSelection,
-} from "@/features/map/selection/selection";
 
 export function MapPage() {
-  const { selection } = useSelection();
   const [position, setPosition] = useState<LatLngLiteral | null>(null);
   const [locationFailed, setLocationFailed] = useState(false);
   const [selectedRoute, setSelectedRoute] = useState<RouteResponse | null>(
@@ -42,16 +37,6 @@ export function MapPage() {
 
   const clearRouteSelection = useCallback(() => setSelectedRoute(null), []);
 
-  const selectedFieldId =
-    selection?.kind === SelectionKind.Field ? selection.id : null;
-
-  const activeRoute =
-    selectedRoute && selectedRoute.fieldId === selectedFieldId
-      ? selectedRoute
-      : null;
-
-  const selectedFieldIds = selectedFieldId !== null ? [selectedFieldId] : [];
-
   return (
     <div className="relative h-full w-full">
       <MapContainer
@@ -70,8 +55,7 @@ export function MapPage() {
         <FieldsLayer />
         <LocationsLayer></LocationsLayer>
         <RoutesLayer
-          fieldIds={selectedFieldIds}
-          selectedRouteId={activeRoute?.id ?? null}
+          selectedRouteId={selectedRoute?.id ?? null}
           onRouteClick={handleRouteClick}
         />
         <LocationMarker
@@ -95,7 +79,7 @@ export function MapPage() {
           </div>
         </div>
       </MapContainer>
-      <RouteToolbar route={activeRoute} onClose={clearRouteSelection} />
+      <RouteToolbar route={selectedRoute} onClose={clearRouteSelection} />
     </div>
   );
 }

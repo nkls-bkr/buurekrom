@@ -14,14 +14,12 @@ public record RouteResponse(
         @Nonnull Long id,
         @Nullable String name,
         @Nonnull GeoJsonLineString geometry,
-        @Nonnull Long fieldId,
         @Nullable LocalDateTime createdAt
 ) {
 
     public RouteResponse {
         requireNonNull(id, "id");
         requireNonNull(geometry, "geometry");
-        requireNonNull(fieldId, "fieldId");
     }
 
     @Nonnull
@@ -32,7 +30,6 @@ public record RouteResponse(
                 requireNonNull(route.getId(), "route.id"),
                 route.getName(),
                 converter.toGeoJson(route.getGeometry()),
-                requireNonNull(route.getField().getId(), "route.field.id"),
                 route.getCreatedAt()
         );
     }

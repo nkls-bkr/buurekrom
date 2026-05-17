@@ -15,14 +15,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useCreateRouteMutation } from "@/features/routes/api";
-import {
-  SelectionKind,
-  useSelection,
-} from "@/features/map/selection/selection";
 
 export function DrawRouteButton() {
-  const { selection } = useSelection();
-  const fieldId = selection?.kind === SelectionKind.Field ? selection.id : null;
   const map = useMap();
   const [drawing, setDrawing] = useState(false);
   const [pendingLayer, setPendingLayer] = useState<L.Layer | null>(null);
@@ -30,7 +24,6 @@ export function DrawRouteButton() {
   const createRoute = useCreateRouteMutation();
 
   function startDraw() {
-    if (fieldId === null) return;
     map.pm.enableDraw("Line", {
       snappable: false,
       finishOn: "dblclick",
@@ -58,7 +51,7 @@ export function DrawRouteButton() {
   }
 
   function handleSave() {
-    if (!pendingLayer || fieldId === null) return;
+    if (!pendingLayer) return;
 
     const geojson = (pendingLayer as L.Polyline).toGeoJSON();
     const geometry = geojson.geometry as {
@@ -68,10 +61,7 @@ export function DrawRouteButton() {
     const trimmedName = name.trim();
 
     createRoute.mutate(
-      {
-        fieldId,
-        request: { name: trimmedName ? trimmedName : null, geometry },
-      },
+      { name: trimmedName ? trimmedName : null, geometry },
       {
         onSuccess: () => {
           toast.success(
@@ -94,7 +84,6 @@ export function DrawRouteButton() {
       {!drawing && (
         <Button
           onClick={startDraw}
-          disabled={fieldId === null}
           variant="secondary"
           size="icon"
           className="shadow-card"

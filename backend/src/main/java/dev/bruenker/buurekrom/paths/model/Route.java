@@ -28,9 +28,9 @@ public class Route {
     private LineString geometry;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "field_id", nullable = false)
+    @JoinColumn(name = "owner_id", nullable = false)
     @Nonnull
-    private Field field;
+    private User owner;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -44,13 +44,13 @@ public class Route {
             @Nullable final Long id,
             @Nullable final String name,
             @Nonnull final LineString geometry,
-            @Nonnull final Field field,
+            @Nonnull final User owner,
             @Nullable final LocalDateTime createdAt
     ) {
         this.id = id;
         this.name = name;
         this.geometry = requireNonNull(geometry, "geometry");
-        this.field = requireNonNull(field, "field");
+        this.owner = requireNonNull(owner, "owner");
         this.createdAt = createdAt;
     }
 
@@ -82,12 +82,12 @@ public class Route {
     }
 
     @Nonnull
-    public Field getField() {
-        return field;
+    public User getOwner() {
+        return owner;
     }
 
-    public void setField(@Nonnull final Field field) {
-        this.field = requireNonNull(field, "field");
+    public void setOwner(@Nonnull final User owner) {
+        this.owner = requireNonNull(owner, "owner");
     }
 
     @Nullable
