@@ -3,6 +3,7 @@ import { CircleMarker } from "react-leaflet";
 import type { LatLngLiteral } from "leaflet";
 import { toast } from "sonner";
 import { describeGeolocationError } from "@/features/map/geolocation";
+import "./LocationMarker.css";
 
 interface Props {
   position: LatLngLiteral | null;
@@ -29,6 +30,18 @@ export function LocationMarker({ position, onPosition, onError }: Props) {
 
   return (
     <>
+      <CircleMarker
+        center={position}
+        radius={20}
+        pathOptions={{
+          className: "position-pulse-path",
+          color: "#4285F4",
+          fillColor: "#4285F4",
+          fillOpacity: 1,
+          weight: 0,
+        }}
+        interactive={false}
+      />
       <CircleMarker
         center={position}
         radius={9}
