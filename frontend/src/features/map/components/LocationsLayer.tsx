@@ -1,4 +1,4 @@
-import { Marker, Pane, Tooltip } from "react-leaflet";
+import { Marker, Pane } from "react-leaflet";
 import { useLocations } from "@/features/location/api.ts";
 import {
   LOCATION_ICON,
@@ -35,13 +35,7 @@ export function LocationsLayer() {
             eventHandlers={{
               click: () => toggle(SelectionKind.Location, location.id),
             }}
-          >
-            {selected && location.name && (
-              <Tooltip permanent direction="top" offset={[0, -32]}>
-                {location.name}
-              </Tooltip>
-            )}
-          </Marker>
+          />
         );
       })}
     </Pane>

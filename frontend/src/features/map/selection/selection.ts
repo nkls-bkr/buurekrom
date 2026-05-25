@@ -3,6 +3,7 @@ import { createContext, useContext } from "react";
 export const SelectionKind = {
   Field: "field",
   Location: "location",
+  Route: "route",
 } as const;
 
 export type SelectionKind = (typeof SelectionKind)[keyof typeof SelectionKind];

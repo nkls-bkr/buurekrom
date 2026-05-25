@@ -37,7 +37,9 @@ export function FieldsLayer() {
                     weight: 2,
                   }
             }
-            eventHandlers={{ click: () => toggle("field", field.id) }}
+            eventHandlers={{
+              click: () => toggle(SelectionKind.Field, field.id),
+            }}
           />
         );
       })}
