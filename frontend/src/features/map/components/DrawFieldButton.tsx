@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useMap } from "react-leaflet";
 import "@geoman-io/leaflet-geoman-free";
 import type L from "leaflet";
-import { PenLineIcon, XIcon } from "lucide-react";
+import { LandPlotIcon, XIcon } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -88,7 +88,7 @@ export function DrawFieldButton() {
           className="shadow-card"
           aria-label="Feld zeichnen"
         >
-          <PenLineIcon className="size-4" />
+          <LandPlotIcon className="size-4" />
         </Button>
       )}
 
