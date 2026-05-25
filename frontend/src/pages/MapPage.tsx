@@ -8,8 +8,7 @@ import { FieldsLayer } from "@/features/map/components/FieldsLayer";
 import { LocateButton } from "@/features/map/components/LocateButton";
 import { LocationMarker } from "@/features/map/components/LocationMarker";
 import { RoutesLayer } from "@/features/map/components/RoutesLayer";
-import { RouteToolbar } from "@/features/map/components/RouteToolbar";
-import type { RouteResponse } from "@/features/routes/api";
+import { SelectionToolbar } from "@/features/map/components/SelectionToolbar";
 import { CENTER_OF_GERMANY } from "@/constants.ts";
 import { LocationsLayer } from "@/features/map/components/LocationsLayer.tsx";
 import { DrawLocationButton } from "@/features/map/components/DrawLocationButton.tsx";
@@ -17,9 +16,6 @@ import { DrawLocationButton } from "@/features/map/components/DrawLocationButton
 export function MapPage() {
   const [position, setPosition] = useState<LatLngLiteral | null>(null);
   const [locationFailed, setLocationFailed] = useState(false);
-  const [selectedRoute, setSelectedRoute] = useState<RouteResponse | null>(
-    null,
-  );
 
   const handlePosition = useCallback((pos: LatLngLiteral) => {
     setPosition(pos);
@@ -29,13 +25,6 @@ export function MapPage() {
   const handleLocationError = useCallback(() => setLocationFailed(true), []);
 
   const handleLocationRequest = useCallback(() => setLocationFailed(false), []);
-
-  //TODO route selection refactor with selectioncontext
-  const handleRouteClick = useCallback((route: RouteResponse) => {
-    setSelectedRoute((prev) => (prev?.id === route.id ? null : route));
-  }, []);
-
-  const clearRouteSelection = useCallback(() => setSelectedRoute(null), []);
 
   return (
     <div className="relative h-full w-full">
@@ -54,10 +43,7 @@ export function MapPage() {
         />
         <FieldsLayer />
         <LocationsLayer></LocationsLayer>
-        <RoutesLayer
-          selectedRouteId={selectedRoute?.id ?? null}
-          onRouteClick={handleRouteClick}
-        />
+        <RoutesLayer />
         <LocationMarker
           position={position}
           onPosition={handlePosition}
@@ -79,7 +65,7 @@ export function MapPage() {
           </div>
         </div>
       </MapContainer>
-      <RouteToolbar route={selectedRoute} onClose={clearRouteSelection} />
+      <SelectionToolbar />
     </div>
   );
 }

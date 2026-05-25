@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { useDeleteFieldsMutation } from "@/features/fields/api";
 import { useDeleteLocationMutation } from "@/features/location/api";
+import { useDeleteRouteMutation } from "@/features/routes/api";
 import {
   SelectionKind,
   useSelection,
@@ -29,6 +30,12 @@ const LABELS = {
     success: "Standort gelöscht.",
     failure: "Standort konnte nicht gelöscht werden.",
   },
+  [SelectionKind.Route]: {
+    aria: "Route löschen",
+    title: "Route löschen?",
+    success: "Route gelöscht.",
+    failure: "Route konnte nicht gelöscht werden.",
+  },
 } as const;
 
 export function DeleteSelectionButton() {
@@ -36,9 +43,11 @@ export function DeleteSelectionButton() {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const deleteFields = useDeleteFieldsMutation();
   const deleteLocation = useDeleteLocationMutation();
+  const deleteRoute = useDeleteRouteMutation();
 
   const labels = selection ? LABELS[selection.kind] : null;
-  const isPending = deleteFields.isPending || deleteLocation.isPending;
+  const isPending =
+    deleteFields.isPending || deleteLocation.isPending || deleteRoute.isPending;
 
   function handleConfirm() {
     if (!selection) return;
@@ -51,10 +60,16 @@ export function DeleteSelectionButton() {
       toast.error(LABELS[selection.kind].failure);
     };
 
-    if (selection.kind === SelectionKind.Field) {
-      deleteFields.mutate([selection.id], { onSuccess, onError });
-    } else {
-      deleteLocation.mutate(selection.id, { onSuccess, onError });
+    switch (selection.kind) {
+      case SelectionKind.Field:
+        deleteFields.mutate([selection.id], { onSuccess, onError });
+        break;
+      case SelectionKind.Location:
+        deleteLocation.mutate(selection.id, { onSuccess, onError });
+        break;
+      case SelectionKind.Route:
+        deleteRoute.mutate(selection.id, { onSuccess, onError });
+        break;
     }
   }
 

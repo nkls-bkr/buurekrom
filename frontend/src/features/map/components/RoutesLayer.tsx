@@ -1,19 +1,18 @@
 import { Fragment } from "react";
 import { Pane, Polyline } from "react-leaflet";
-import { useRoutes, type RouteResponse } from "@/features/routes/api";
+import { useRoutes } from "@/features/routes/api";
+import {
+  SelectionKind,
+  useSelection,
+} from "@/features/map/selection/selection";
 import { ROUTES_PANE, Z_INDEX_ROUTES_PANE } from "@/shared/z-index.layers.ts";
 
-interface RoutesLayerProps {
-  selectedRouteId: number | null;
-  onRouteClick: (route: RouteResponse) => void;
-}
-
-export function RoutesLayer({
-  selectedRouteId,
-  onRouteClick,
-}: RoutesLayerProps) {
+export function RoutesLayer() {
   const { data } = useRoutes();
+  const { selection, isSelected, toggle } = useSelection();
   const routes = data ?? [];
+
+  const hasRouteSelection = selection?.kind === SelectionKind.Route;
 
   return (
     <Pane name={ROUTES_PANE} style={{ zIndex: Z_INDEX_ROUTES_PANE }}>
@@ -21,9 +20,8 @@ export function RoutesLayer({
         const positions = route.geometry.coordinates.map<[number, number]>(
           ([lng, lat]) => [lat, lng],
         );
-        const selected = route.id === selectedRouteId;
-        const dimmed = selectedRouteId !== null && !selected;
-        const handlers = { click: () => onRouteClick(route) };
+        const selected = isSelected(SelectionKind.Route, route.id);
+        const dimmed = hasRouteSelection && !selected;
         return (
           <Fragment key={route.id}>
             <Polyline
@@ -36,7 +34,9 @@ export function RoutesLayer({
                 lineCap: "round",
                 lineJoin: "round",
               }}
-              eventHandlers={handlers}
+              eventHandlers={{
+                click: () => toggle(SelectionKind.Route, route.id),
+              }}
             />
           </Fragment>
         );
