@@ -2,6 +2,7 @@ package dev.bruenker.buurekrom.paths.api;
 
 import dev.bruenker.buurekrom.paths.api.request.RouteRequest;
 import dev.bruenker.buurekrom.paths.api.response.RouteResponse;
+import dev.bruenker.buurekrom.paths.api.response.ShareTokenResponse;
 import dev.bruenker.buurekrom.paths.model.Route;
 import dev.bruenker.buurekrom.paths.model.User;
 import dev.bruenker.buurekrom.paths.service.RouteService;
@@ -74,5 +75,11 @@ public class RouteController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable @Nonnull final Long routeId) {
         routeService.delete(routeId);
+    }
+
+    @PostMapping("/{routeId}/share")
+    @Nonnull
+    public ShareTokenResponse share(@PathVariable @Nonnull final Long routeId) {
+        return new ShareTokenResponse(routeService.getOrCreateShareToken(routeId));
     }
 }

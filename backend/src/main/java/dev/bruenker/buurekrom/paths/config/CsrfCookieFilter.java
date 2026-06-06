@@ -25,9 +25,11 @@ final class CsrfCookieFilter extends OncePerRequestFilter {
         requireNonNull(filterChain, "filterChain");
 
         final CsrfToken csrfToken = (CsrfToken) request.getAttribute("_csrf");
+
         if (csrfToken != null) {
             csrfToken.getToken();
         }
+
         filterChain.doFilter(request, response);
     }
 }
