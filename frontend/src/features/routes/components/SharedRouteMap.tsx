@@ -1,8 +1,7 @@
-import { useEffect } from "react";
-import { MapContainer, Pane, Polyline, TileLayer, useMap } from "react-leaflet";
+import { MapContainer, TileLayer } from "react-leaflet";
 import { CENTER_OF_GERMANY } from "@/constants.ts";
-import { ROUTES_PANE, Z_INDEX_ROUTES_PANE } from "@/shared/z-index.layers.ts";
-import { fitToCoordinates } from "@/features/map/mapNavigation";
+import { FitToRoute } from "@/features/routes/components/FitToRoute";
+import { SharedRouteLayer } from "@/features/routes/components/SharedRouteLayer";
 import type { PublicRouteResponse } from "@/features/routes/api";
 
 export function SharedRouteMap({ route }: { route: PublicRouteResponse }) {
@@ -20,30 +19,8 @@ export function SharedRouteMap({ route }: { route: PublicRouteResponse }) {
         maxZoom={28}
         maxNativeZoom={19}
       />
-      <Pane name={ROUTES_PANE} style={{ zIndex: Z_INDEX_ROUTES_PANE }}>
-        <Polyline
-          pane={ROUTES_PANE}
-          positions={route.geometry.coordinates.map<[number, number]>(
-            ([lng, lat]) => [lat, lng],
-          )}
-          pathOptions={{
-            color: "#e8590c",
-            weight: 5,
-            opacity: 1,
-            lineCap: "round",
-            lineJoin: "round",
-          }}
-        />
-      </Pane>
+      <SharedRouteLayer route={route} />
       <FitToRoute route={route} />
     </MapContainer>
   );
-}
-
-function FitToRoute({ route }: { route: PublicRouteResponse }) {
-  const map = useMap();
-  useEffect(() => {
-    fitToCoordinates(map, route.geometry.coordinates);
-  }, [map, route]);
-  return null;
 }
