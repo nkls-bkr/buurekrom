@@ -11,4 +11,8 @@ public class RouteNotFoundException extends NotFoundException {
     public RouteNotFoundException(@Nonnull final Long routeId) {
         super(MESSAGE_TEMPLATE.formatted(requireNonNull(routeId, "routeId")));
     }
+
+    public RouteNotFoundException(@Nonnull final String identifier) {
+        super(MESSAGE_TEMPLATE.formatted(requireNonNull(identifier, "identifier")));
+    }
 }

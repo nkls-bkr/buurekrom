@@ -37,6 +37,10 @@ public class Route {
     @Nullable
     private LocalDateTime createdAt;
 
+    @Column(name = "share_token", unique = true)
+    @Nullable
+    private String shareToken;
+
     public Route() {
     }
 
@@ -45,13 +49,15 @@ public class Route {
             @Nullable final String name,
             @Nonnull final LineString geometry,
             @Nonnull final User owner,
-            @Nullable final LocalDateTime createdAt
+            @Nullable final LocalDateTime createdAt,
+            @Nullable final String shareToken
     ) {
         this.id = id;
         this.name = name;
         this.geometry = requireNonNull(geometry, "geometry");
         this.owner = requireNonNull(owner, "owner");
         this.createdAt = createdAt;
+        this.shareToken = shareToken;
     }
 
     @Nullable
@@ -97,5 +103,14 @@ public class Route {
 
     public void setCreatedAt(@Nullable final LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    @Nullable
+    public String getShareToken() {
+        return shareToken;
+    }
+
+    public void setShareToken(@Nullable final String shareToken) {
+        this.shareToken = shareToken;
     }
 }

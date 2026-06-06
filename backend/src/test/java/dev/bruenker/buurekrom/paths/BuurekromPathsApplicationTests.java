@@ -1,10 +1,9 @@
 package dev.bruenker.buurekrom.paths;
 
+import dev.bruenker.buurekrom.paths.support.BuurekromTestcontainersTest;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
-class BuurekromPathsApplicationTests {
+class BuurekromPathsApplicationTests extends BuurekromTestcontainersTest {
 
     @Test
     void contextLoads() {

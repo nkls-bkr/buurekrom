@@ -3,11 +3,13 @@ import { AppLayout } from "../shared/components/AppLayout";
 import { LoginPage } from "../pages/LoginPage";
 import { MapPage } from "../pages/MapPage";
 import { NotFoundPage } from "../pages/NotFoundPage";
+import { SharedRoutePage } from "../pages/SharedRoutePage";
 import { RequireAuth } from "./RequireAuth";
 import { SelectionProvider } from "@/features/map/selection/SelectionProvider";
 
 export const router = createBrowserRouter([
   { path: "/login", element: <LoginPage /> },
+  { path: "/share/:token", element: <SharedRoutePage /> },
   {
     path: "/",
     element: (

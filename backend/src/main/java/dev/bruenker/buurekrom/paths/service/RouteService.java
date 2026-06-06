@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 import static java.util.Objects.requireNonNull;
 
@@ -40,7 +41,7 @@ public class RouteService {
         requireNonNull(geometry, "geometry");
         requireNonNull(owner, "owner");
 
-        final Route route = new Route(null, name, geometry, owner, null);
+        final Route route = new Route(null, name, geometry, owner, null, null);
 
         return routeRepository.save(route);
     }
@@ -53,5 +54,32 @@ public class RouteService {
         }
 
         routeRepository.deleteById(routeId);
+    }
+
+    @Nonnull
+    public String getOrCreateShareToken(@Nonnull final Long routeId) {
+        requireNonNull(routeId, "routeId");
+
+        final Route route = routeRepository.findById(routeId)
+                .orElseThrow(() -> new RouteNotFoundException(routeId));
+
+        final String existing = route.getShareToken();
+
+        if (existing != null) {
+            return existing;
+        }
+
+        final String token = UUID.randomUUID().toString();
+        route.setShareToken(token);
+        routeRepository.save(route);
+        return token;
+    }
+
+    @Transactional(readOnly = true)
+    @Nonnull
+    public Route findByShareToken(@Nonnull final String shareToken) {
+        requireNonNull(shareToken, "shareToken");
+        return routeRepository.findByShareToken(shareToken)
+                .orElseThrow(() -> new RouteNotFoundException(shareToken));
     }
 }

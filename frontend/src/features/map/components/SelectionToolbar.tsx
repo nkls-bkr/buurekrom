@@ -1,9 +1,16 @@
-import { LandPlotIcon, MapPinIcon, RouteIcon, XIcon } from "lucide-react";
+import {
+  LandPlotIcon,
+  MapPinIcon,
+  RouteIcon,
+  XIcon,
+} from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import { useFields } from "@/features/fields/api";
 import { useLocations } from "@/features/location/api";
 import { useRoutes } from "@/features/routes/api";
+import { ShareRouteButton } from "@/features/map/components/ShareRouteButton";
 import {
   SelectionKind,
   useSelection,
@@ -36,9 +43,15 @@ export function SelectionToolbar() {
   const label = name ?? FALLBACK_NAMES[selection.kind];
 
   return (
-    <div className="absolute top-4 left-1/2 z-[1000] flex -translate-x-1/2 items-center gap-2 rounded-full bg-card px-3 py-1.5 shadow-card">
+    <div className="absolute top-4 left-1/2 z-1000 flex -translate-x-1/2 items-center gap-2 rounded-full bg-card px-3 py-1.5 shadow-card">
       <Icon className="size-4 text-muted-foreground" />
       <span className="text-label-md">{label}</span>
+      {selection.kind === SelectionKind.Route && (
+        <>
+          <ShareRouteButton routeId={selection.id} />
+          <Separator orientation="vertical" className="my-1" />
+        </>
+      )}
       <Button
         variant="ghost"
         size="icon-sm"
