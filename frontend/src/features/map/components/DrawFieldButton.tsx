@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from "react";
 import { useMap } from "react-leaflet";
 import "@geoman-io/leaflet-geoman-free";
 import type L from "leaflet";
+
+type PmCreateHandler = (event: { layer: L.Layer }) => void;
 import { LandPlotIcon, XIcon } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -18,9 +20,11 @@ import { useCreateFieldMutation } from "@/features/fields/api";
 
 export function DrawFieldButton() {
   const map = useMap();
+  const [isOpen, setOpen] = useState(false);
   const [drawing, setDrawing] = useState(false);
   const [pendingLayer, setPendingLayer] = useState<L.Layer | null>(null);
   const [name, setName] = useState("");
+  const createHandlerRef = useRef<PmCreateHandler | null>(null);
   const createField = useCreateFieldMutation();
   const nameInputRef = useRef<HTMLInputElement>(null);
 
@@ -36,22 +40,32 @@ export function DrawFieldButton() {
     });
     setDrawing(true);
 
-    map.once("pm:create", ({ layer }: { layer: L.Layer }) => {
+    const handler: PmCreateHandler = ({ layer }) => {
+      createHandlerRef.current = null;
       map.pm.disableDraw();
       setDrawing(false);
       setPendingLayer(layer);
       map.removeLayer(layer);
-    });
+      setOpen(true);
+    };
+    createHandlerRef.current = handler;
+    map.once("pm:create", handler);
   }
 
   function cancelDraw() {
+    if (createHandlerRef.current) {
+      map.off("pm:create", createHandlerRef.current);
+      createHandlerRef.current = null;
+    }
     map.pm.disableDraw();
     setDrawing(false);
+    setOpen(false);
   }
 
   function cancelSave() {
     setPendingLayer(null);
     setName("");
+    setOpen(false);
   }
 
   function handleSave() {
@@ -76,6 +90,7 @@ export function DrawFieldButton() {
         },
       },
     );
+    setOpen(false);
   }
 
   return (
@@ -106,10 +121,7 @@ export function DrawFieldButton() {
         </div>
       )}
 
-      <Dialog
-        open={!!pendingLayer}
-        onOpenChange={(open) => !open && cancelSave()}
-      >
+      <Dialog open={isOpen} onOpenChange={(open) => !open && cancelSave()}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Feld benennen</DialogTitle>
