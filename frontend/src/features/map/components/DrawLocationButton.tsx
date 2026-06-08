@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useMap } from "react-leaflet";
 import "@geoman-io/leaflet-geoman-free";
 import type L from "leaflet";
 import type { Point } from "geojson";
+
+type PmCreateHandler = (event: { layer: L.Layer }) => void;
 import { MapPinIcon, XIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,9 +21,11 @@ import { LOCATION_ICON } from "@/features/map/components/locationIcon";
 
 export function DrawLocationButton() {
   const map = useMap();
+  const [isOpen, setOpen] = useState(false);
   const [drawing, setDrawing] = useState(false);
   const [pendingGeometry, setPendingGeometry] = useState<Point | null>(null);
   const [name, setName] = useState("");
+  const createHandlerRef = useRef<PmCreateHandler | null>(null);
   const result = useCreateLocationMutation();
 
   function startDraw() {
@@ -31,23 +35,33 @@ export function DrawLocationButton() {
     });
     setDrawing(true);
 
-    map.once("pm:create", ({ layer }: { layer: L.Layer }) => {
+    const handler: PmCreateHandler = ({ layer }) => {
+      createHandlerRef.current = null;
       map.pm.disableDraw();
       setDrawing(false);
       map.removeLayer(layer);
       const marker = (layer as L.Marker).toGeoJSON();
       setPendingGeometry(marker.geometry);
-    });
+      setOpen(true);
+    };
+    createHandlerRef.current = handler;
+    map.once("pm:create", handler);
   }
 
   function cancelDraw() {
+    if (createHandlerRef.current) {
+      map.off("pm:create", createHandlerRef.current);
+      createHandlerRef.current = null;
+    }
     map.pm.disableDraw();
     setDrawing(false);
+    setOpen(false);
   }
 
   function cancelSave() {
     setPendingGeometry(null);
     setName("");
+    setOpen(false);
   }
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -55,8 +69,14 @@ export function DrawLocationButton() {
     if (!pendingGeometry || !name.trim()) return;
     result.mutate(
       { name: name.trim(), geometry: pendingGeometry },
-      { onSuccess: cancelSave },
+      {
+        onSuccess: () => {
+          setPendingGeometry(null);
+          setName("");
+        },
+      },
     );
+    setOpen(false);
   }
 
   return (
@@ -87,10 +107,7 @@ export function DrawLocationButton() {
         </div>
       )}
 
-      <Dialog
-        open={!!pendingGeometry}
-        onOpenChange={(open) => !open && cancelSave()}
-      >
+      <Dialog open={isOpen} onOpenChange={(open) => !open && cancelSave()}>
         <DialogContent>
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <DialogHeader>
