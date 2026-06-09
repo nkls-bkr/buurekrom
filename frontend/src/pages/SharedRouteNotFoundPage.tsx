@@ -1,14 +1,24 @@
-import { Unlink2Icon } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 
 export function SharedRouteNotFoundPage() {
   return (
-    <div className="relative flex h-screen w-screen items-center justify-center bg-primary p-6">
-      <div className="max-w-md rounded-2xl bg-primary-container p-8 text-center text-on-primary shadow-card">
-        <Unlink2Icon className="mx-auto mb-4 size-10" strokeWidth={1.5} />
-        <h1 className="text-headline-md mb-2">Route nicht gefunden</h1>
-        <p className="text-body-md opacity-80">
-          Wir konnten zu diesem Link keine Route finden.
+    <div className="flex h-screen w-screen items-center justify-center bg-primary">
+      <div className="flex max-w-md flex-col items-center rounded-2xl bg-primary-container p-4 text-center text-on-primary shadow-card">
+        <img
+          src="/buurekrom-inprogress.png"
+          alt=""
+          className="mx-auto mb-2 size-60 object-contain"
+        />
+        <h1 className="text-headline-md mb-2">
+          Wir konnten keine Route finden...
+        </h1>
+        <p className="text-body-md opacity-80 mb-4">
+          Überprüfe ob der Link korrekt ist und versuche es erneut.
         </p>
+        <Button render={<Link to="/" />} className="gap-2">
+          Zurück zur Startseite
+        </Button>
       </div>
       <div className="absolute bottom-6 left-1/2 flex -translate-x-1/2 flex-row items-center gap-2 text-on-primary">
         <img
