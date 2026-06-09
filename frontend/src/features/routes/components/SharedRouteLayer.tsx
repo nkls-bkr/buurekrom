@@ -11,7 +11,7 @@ export function SharedRouteLayer({ route }: { route: PublicRouteResponse }) {
           ([lng, lat]) => [lat, lng],
         )}
         pathOptions={{
-          color: "#e8590c",
+          color: "#772d0c",
           weight: 5,
           opacity: 1,
           lineCap: "round",
