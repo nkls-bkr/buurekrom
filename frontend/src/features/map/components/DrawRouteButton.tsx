@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useMap } from "react-leaflet";
 import "@geoman-io/leaflet-geoman-free";
-import type L from "leaflet";
+import L from "leaflet";
+
+type PmCreateHandler = (event: { layer: L.Layer }) => void;
 import { RouteIcon, XIcon } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -18,9 +20,11 @@ import { useCreateRouteMutation } from "@/features/routes/api";
 
 export function DrawRouteButton() {
   const map = useMap();
+  const [isOpen, setOpen] = useState(false);
   const [drawing, setDrawing] = useState(false);
   const [pendingLayer, setPendingLayer] = useState<L.Layer | null>(null);
   const [name, setName] = useState("");
+  const createHandlerRef = useRef<PmCreateHandler | null>(null);
   const createRoute = useCreateRouteMutation();
 
   function startDraw() {
@@ -32,22 +36,32 @@ export function DrawRouteButton() {
     });
     setDrawing(true);
 
-    map.once("pm:create", ({ layer }: { layer: L.Layer }) => {
+    const handler: PmCreateHandler = ({ layer }) => {
+      createHandlerRef.current = null;
       map.pm.disableDraw();
       setDrawing(false);
       setPendingLayer(layer);
       map.removeLayer(layer);
-    });
+      setOpen(true);
+    };
+    createHandlerRef.current = handler;
+    map.once("pm:create", handler);
   }
 
   function cancelDraw() {
+    if (createHandlerRef.current) {
+      map.off("pm:create", createHandlerRef.current);
+      createHandlerRef.current = null;
+    }
     map.pm.disableDraw();
     setDrawing(false);
+    setOpen(false);
   }
 
   function cancelSave() {
     setPendingLayer(null);
     setName("");
+    setOpen(false);
   }
 
   function handleSave() {
@@ -77,6 +91,7 @@ export function DrawRouteButton() {
         },
       },
     );
+    setOpen(false);
   }
 
   return (
@@ -94,9 +109,9 @@ export function DrawRouteButton() {
       )}
 
       {drawing && (
-        <div className="fixed bottom-6 left-1/2 z-[1000] flex -translate-x-1/2 flex-col items-center gap-3">
+        <div className="fixed bottom-6 left-1/2 z-1000 flex -translate-x-1/2 flex-col items-center gap-3">
           <span className="rounded-full bg-card px-4 py-1.5 text-label-md shadow-card">
-            Letzen Punkt erneut anklicken, um Route zu beenden
+            Letzen Punkt erneut anklicken, um das Erstellen der Route zu beenden
           </span>
           <Button
             variant="outline"
@@ -110,10 +125,7 @@ export function DrawRouteButton() {
         </div>
       )}
 
-      <Dialog
-        open={!!pendingLayer}
-        onOpenChange={(open) => !open && cancelSave()}
-      >
+      <Dialog open={isOpen} onOpenChange={(open) => !open && cancelSave()}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Route benennen</DialogTitle>
