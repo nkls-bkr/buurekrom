@@ -44,7 +44,7 @@ export function SelectionToolbar() {
 
   return (
     <div className="absolute top-4 left-1/2 z-1000 flex -translate-x-1/2 items-center gap-2 rounded-full bg-card px-3 py-1.5 shadow-card">
-      <Icon className="size-4 text-muted-foreground" />
+      <Icon className="size-4 text-muted-foreground/60" />
       <span className="text-label-md">{label}</span>
       {selection.kind === SelectionKind.Route && (
         <>

@@ -25,7 +25,7 @@ export function RoutesLayer() {
               pane={ROUTES_PANE}
               positions={positions}
               pathOptions={{
-                color: selected ? "#c2410c" : "#e8590c",
+                color: selected ? "#772d0c" : "#4d6450",
                 weight: selected ? 7 : 5,
                 lineCap: "round",
                 lineJoin: "round",
