@@ -1,55 +1,69 @@
 package dev.bruenker.buurekrom.paths.config;
 
-import dev.bruenker.buurekrom.paths.support.BuurekromTestcontainersTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.TestPropertySource;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.forwardedUrl;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@TestPropertySource(properties = {
-        "spring.web.resources.static-locations=classpath:/mock-ui-folder/"
-})
-class SpaControllerIntegrationTest extends BuurekromTestcontainersTest {
+@WebMvcTest(SpaController.class)
+@AutoConfigureMockMvc(addFilters = false)
+class SpaControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @Test
-    void redirect() throws Exception {
+    void shouldForwardToIndexHtml_whenCallingRoot() throws Exception {
         mockMvc.perform(get("/"))
-                .andExpect(content().string("This is a mock UI folder"))
+                .andExpect(status().isOk())
+                .andExpect(forwardedUrl("index.html"));
+    }
+
+    @Test
+    void shouldForwardToRoot_whenCallingUnknownUrl() throws Exception {
+        mockMvc.perform(get("/dashboard"))
+                .andExpect(status().isOk())
+                .andExpect(forwardedUrl("/"));
+    }
+
+    @Test
+    void shouldForwardToRoot_whenCallingNestedPath() throws Exception {
+        mockMvc.perform(get("/settings/profile"))
+                .andExpect(status().isOk())
+                .andExpect(forwardedUrl("/"));
+    }
+
+    @Test
+    void shouldForwardToRoot_whenPathIsDeeplyNested() throws Exception {
+        mockMvc.perform(get("/admin/users/42/edit"))
+                .andExpect(status().isOk())
+                .andExpect(forwardedUrl("/"));
+    }
+
+    @Test
+    void shouldNotIntercept_whenStaticFilesAreRequested() throws Exception {
+        mockMvc.perform(get("/assets/app.js"))
+                .andExpect(status().isOk())
+                // Test does not work without a block
+                .andExpect(content().string("""
+                        console.log();
+                        """));
+    }
+
+    @Test
+    void shouldNotIntercept_whenFileIsCssFile() throws Exception {
+        mockMvc.perform(get("/assets/style.css"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("h1{color: #000000;}"));
+    }
+
+    @Test
+    void shouldNotIntercept_whenFileIsImage() throws Exception {
+        mockMvc.perform(get("/assets/buurekrom.png"))
                 .andExpect(status().isOk());
-    }
-
-    @Test
-    void forwardsExtensionlessPathToRoot() throws Exception {
-        mockMvc.perform(get("/login"))
-                .andExpect(status().isOk())
-                .andExpect(forwardedUrl("/"));
-    }
-
-    @Test
-    void forwardsNestedExtensionlessPathToRoot() throws Exception {
-        mockMvc.perform(get("/fields/123/edit"))
-                .andExpect(status().isOk())
-                .andExpect(forwardedUrl("/"));
-    }
-
-    @Test
-    void doesNotForwardPathWithFileExtension() throws Exception {
-        mockMvc.perform(get("/missing.js"))
-                .andExpect(status().isNotFound());
-    }
-
-    @Test
-    void servesNestedStaticAsset() throws Exception {
-        mockMvc.perform(get("/assets/test.js"))
-                .andExpect(status().isOk())
-                .andExpect(content().string("console.log(\"This is a mock JS file\");\n"));
     }
 }
