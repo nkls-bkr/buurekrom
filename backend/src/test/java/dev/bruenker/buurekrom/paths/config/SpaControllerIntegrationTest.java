@@ -6,6 +6,7 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -48,10 +49,7 @@ class SpaControllerTest {
     void shouldNotIntercept_whenStaticFilesAreRequested() throws Exception {
         mockMvc.perform(get("/assets/app.js"))
                 .andExpect(status().isOk())
-                // Test does not work without a block
-                .andExpect(content().string("""
-                        console.log();
-                        """));
+                .andExpect(content().string(containsString("console.log();")));
     }
 
     @Test
