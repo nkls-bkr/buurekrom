@@ -83,7 +83,7 @@ export function AppLayout() {
             </SidebarMenuItem>
           </SidebarMenu>
           <span className="px-2 text-right text-[0.625rem] font-medium text-outline-variant">
-            v0.0.9
+            v0.0.10
           </span>
         </SidebarFooter>
       </Sidebar>
