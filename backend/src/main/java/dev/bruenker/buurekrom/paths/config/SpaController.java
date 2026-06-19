@@ -12,4 +12,6 @@ public class SpaController {
     public String redirect() {
         return "forward:/";
     }
+
+
 }
