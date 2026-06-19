@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
 import { useLoginMutation, useMe } from "../features/auth/api";
+import { useMeta } from "../features/meta/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,6 +22,7 @@ export function LoginPage() {
   const navigate = useNavigate();
   const loginMutation = useLoginMutation();
   const { data: me } = useMe();
+  const { data: meta } = useMeta();
 
   const {
     register,
@@ -69,7 +71,19 @@ export function LoginPage() {
             alt="Buurekrom"
             className="h-12 w-12 object-contain"
           />
-          <span className="text-[1.5rem]">Buurekrom</span>
+          <div className="flex h-12 flex-col justify-center leading-tight">
+            <span className="text-[1.5rem]">Buurekrom</span>
+            <span className="inline-flex items-center gap-1 text-[0.625rem] font-medium text-outline-variant">
+              <span className="rounded-sm border border-outline-variant bg-surface-container-highest px-1 py-px text-[0.5rem] font-semibold uppercase tracking-wide text-on-surface shadow-sm">
+                Alpha
+              </span>
+              {meta?.stage && meta.stage.toLowerCase() !== "prod" && (
+                <span className="rounded-sm border border-tertiary bg-tertiary-container px-1 py-px text-[0.5rem] font-semibold uppercase tracking-wide text-on-primary shadow-sm">
+                  {meta.stage}
+                </span>
+              )}
+            </span>
+          </div>
         </div>
         <div className="flex flex-col gap-2">
           <Label htmlFor="username" className="text-body-lg">

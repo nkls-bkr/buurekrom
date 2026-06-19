@@ -1,3 +1,6 @@
+app:
+  stage: ${APP_STAGE:local}
+
 spring:
   application:
     name: Buurekrom

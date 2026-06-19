@@ -8,8 +8,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class SpaController {
 
     @Nonnull
-    @RequestMapping(value = "/{path:[^.]*}")
+    @RequestMapping(value = "/**/{path:[^.]*}")
     public String redirect() {
         return "forward:/";
     }
+
+
 }

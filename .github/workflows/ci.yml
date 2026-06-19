@@ -1,0 +1,54 @@
+name: Buurekrom CI
+
+on:
+  push:
+    branches: [master, develop]
+  pull_request:
+
+jobs:
+  backend:
+    name: Backend test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup JDK 25
+        uses: actions/setup-java@v4
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Make mvnw executable
+        run: chmod +x ./mvnw
+
+      - name: Verify
+        run: ./mvnw -B verify
+
+      - name: Coverage report
+        run: ./mvnw -B jacoco:report
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-report
+          path: backend/target/site/jacoco/
+
+      - name: Add Coverage Comment to PR
+        uses: madrapps/jacoco-report@v1.7.2
+        with:
+          paths: backend/target/site/jacoco/jacoco.xml
+          token: ${{ secrets.GITHUB_TOKEN }}
+          min-coverage-overall: 45
+          min-coverage-changed-files: 80
+          title: "Backend Code Coverage"
+          pass-emoji: ':white_check_mark:'
+          fail-emoji: ':x:'
+          update-comment: true

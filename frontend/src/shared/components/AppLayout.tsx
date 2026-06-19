@@ -14,11 +14,13 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { useLogoutMutation } from "@/features/auth/api";
+import { useMeta } from "@/features/meta/api";
 
 export function AppLayout() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const logoutMutation = useLogoutMutation();
+  const { data: meta } = useMeta();
 
   function handleLogout() {
     logoutMutation.mutate(undefined, {
@@ -37,15 +39,19 @@ export function AppLayout() {
               aria-hidden="true"
               className="h-9 w-9 object-contain"
             />
-            <div className="ml-1 flex flex-col leading-tight">
-              <span className="inline-flex items-baseline gap-1 font-display text-lg font-semibold">
+            <div className="ml-1 flex h-9 flex-col justify-center leading-tight">
+              <span className="font-display text-lg font-semibold">
                 Buurekrom
-                <span className="relative -top-1.5 rounded-sm border border-outline-variant bg-surface-container-highest px-1 py-px text-[0.5rem] font-semibold uppercase tracking-wide text-on-surface shadow-sm">
+              </span>
+              <span className="inline-flex items-center gap-1 text-[0.625rem] font-medium text-outline-variant">
+                <span className="rounded-sm border border-outline-variant bg-surface-container-highest px-1 py-px text-[0.5rem] font-semibold uppercase tracking-wide text-on-surface shadow-sm">
                   Alpha
                 </span>
-              </span>
-              <span className="text-[0.625rem] font-medium text-outline-variant">
-                v0.0.9 | Entwicklungsumgebung
+                {meta?.stage && meta.stage.toLowerCase() !== "prod" && (
+                  <span className="rounded-sm border border-tertiary bg-tertiary-container px-1 py-px text-[0.5rem] font-semibold uppercase tracking-wide text-on-primary shadow-sm">
+                    {meta.stage}
+                  </span>
+                )}
               </span>
             </div>
           </div>
@@ -76,6 +82,9 @@ export function AppLayout() {
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
+          <span className="px-2 text-right text-[0.625rem] font-medium text-outline-variant">
+            v0.0.10
+          </span>
         </SidebarFooter>
       </Sidebar>
 
