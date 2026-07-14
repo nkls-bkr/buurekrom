@@ -1,6 +1,4 @@
-import { useCallback, useState } from "react";
 import { MapContainer, TileLayer } from "react-leaflet";
-import type { LatLngLiteral } from "leaflet";
 import { DeleteSelectionButton } from "@/features/map/components/DeleteSelectionButton";
 import { DrawFieldButton } from "@/features/map/components/DrawFieldButton";
 import { DrawRouteButton } from "@/features/map/components/DrawRouteButton";
@@ -12,19 +10,16 @@ import { SelectionToolbar } from "@/features/map/components/SelectionToolbar";
 import { CENTER_OF_GERMANY } from "@/constants.ts";
 import { LocationsLayer } from "@/features/map/components/LocationsLayer.tsx";
 import { DrawLocationButton } from "@/features/map/components/DrawLocationButton.tsx";
+import { useOwnPosition } from "@/features/map/useOwnPosition";
 
 export function MapPage() {
-  const [position, setPosition] = useState<LatLngLiteral | null>(null);
-  const [locationFailed, setLocationFailed] = useState(false);
-
-  const handlePosition = useCallback((pos: LatLngLiteral) => {
-    setPosition(pos);
-    setLocationFailed(false);
-  }, []);
-
-  const handleLocationError = useCallback(() => setLocationFailed(true), []);
-
-  const handleLocationRequest = useCallback(() => setLocationFailed(false), []);
+  const {
+    position,
+    locationFailed,
+    handlePosition,
+    handleLocationError,
+    handleLocationRequest,
+  } = useOwnPosition();
 
   return (
     <div className="relative h-full w-full">
