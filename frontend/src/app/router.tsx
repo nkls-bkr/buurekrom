@@ -6,6 +6,7 @@ import { NotFoundPage } from "../pages/NotFoundPage";
 import { SharedRoutePage } from "../pages/SharedRoutePage";
 import { RequireAuth } from "./RequireAuth";
 import { SelectionProvider } from "@/features/map/selection/SelectionProvider";
+import { VisibilityProvider } from "@/features/map/visibility/VisibilityProvider";
 
 export const router = createBrowserRouter([
   { path: "/login", element: <LoginPage /> },
@@ -14,9 +15,11 @@ export const router = createBrowserRouter([
     path: "/",
     element: (
       <RequireAuth>
-        <SelectionProvider>
-          <AppLayout />
-        </SelectionProvider>
+        <VisibilityProvider>
+          <SelectionProvider>
+            <AppLayout />
+          </SelectionProvider>
+        </VisibilityProvider>
       </RequireAuth>
     ),
     children: [{ index: true, element: <MapPage /> }],

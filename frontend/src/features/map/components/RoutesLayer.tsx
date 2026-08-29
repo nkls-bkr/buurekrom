@@ -6,15 +6,19 @@ import {
   useSelection,
 } from "@/features/map/selection/selection";
 import { ROUTES_PANE, Z_INDEX_ROUTES_PANE } from "@/shared/z-index.layers.ts";
+import { useRouteVisibility } from "@/features/map/visibility/visibility";
 
 export function RoutesLayer() {
   const { data } = useRoutes();
   const { isSelected, toggle } = useSelection();
+  const { isVisible } = useRouteVisibility();
   const routes = data ?? [];
+
+  const visibleRoutes = routes.filter((route) => isVisible(route.id));
 
   return (
     <Pane name={ROUTES_PANE} style={{ zIndex: Z_INDEX_ROUTES_PANE }}>
-      {routes.map((route) => {
+      {visibleRoutes.map((route) => {
         const positions = route.geometry.coordinates.map<[number, number]>(
           ([lng, lat]) => [lat, lng],
         );
