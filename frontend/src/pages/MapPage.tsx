@@ -10,6 +10,7 @@ import { SelectionToolbar } from "@/features/map/components/SelectionToolbar";
 import { CENTER_OF_GERMANY } from "@/constants.ts";
 import { LocationsLayer } from "@/features/map/components/LocationsLayer.tsx";
 import { DrawLocationButton } from "@/features/map/components/DrawLocationButton.tsx";
+import { RouteVisibilityControl } from "@/features/map/components/RouteVisibilityControl";
 import { useOwnPosition } from "@/features/map/useOwnPosition";
 
 export function MapPage() {
@@ -57,6 +58,7 @@ export function MapPage() {
             <DrawFieldButton />
             <DrawRouteButton />
             <DrawLocationButton />
+            <RouteVisibilityControl />
           </div>
         </div>
       </MapContainer>
