@@ -3,9 +3,7 @@ package dev.bruenker.buurekrom.paths.api;
 import dev.bruenker.buurekrom.paths.api.request.FieldRequest;
 import dev.bruenker.buurekrom.paths.api.response.FieldResponse;
 import dev.bruenker.buurekrom.paths.model.Field;
-import dev.bruenker.buurekrom.paths.model.User;
 import dev.bruenker.buurekrom.paths.service.FieldService;
-import dev.bruenker.buurekrom.paths.service.UserService;
 import dev.bruenker.buurekrom.paths.shared.geojson.GeoJsonConverter;
 import jakarta.annotation.Nonnull;
 import org.springframework.http.HttpStatus;
@@ -19,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.security.Principal;
 import java.util.List;
 
 import static java.util.Objects.requireNonNull;
@@ -32,18 +29,13 @@ public class FieldController {
     private final FieldService fieldService;
 
     @Nonnull
-    private final UserService userService;
-
-    @Nonnull
     private final GeoJsonConverter geoJsonConverter;
 
     public FieldController(
             @Nonnull final FieldService fieldService,
-            @Nonnull final UserService userService,
             @Nonnull final GeoJsonConverter geoJsonConverter
     ) {
         this.fieldService = requireNonNull(fieldService, "fieldService");
-        this.userService = requireNonNull(userService, "userService");
         this.geoJsonConverter = requireNonNull(geoJsonConverter, "geoJsonConverter");
     }
 
@@ -65,14 +57,11 @@ public class FieldController {
     @ResponseStatus(HttpStatus.CREATED)
     @Nonnull
     public FieldResponse create(
-            @RequestBody @Nonnull final FieldRequest request,
-            @Nonnull final Principal principal
+            @RequestBody @Nonnull final FieldRequest request
     ) {
-        final User owner = userService.findByUsername(principal.getName());
         final Field field = fieldService.create(
                 request.name(),
-                geoJsonConverter.toPolygon(request.geometry()),
-                owner
+                geoJsonConverter.toPolygon(request.geometry())
         );
         return FieldResponse.from(field, geoJsonConverter);
     }

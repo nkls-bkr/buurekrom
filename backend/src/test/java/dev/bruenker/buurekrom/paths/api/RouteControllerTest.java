@@ -1,7 +1,6 @@
 package dev.bruenker.buurekrom.paths.api;
 
 import dev.bruenker.buurekrom.paths.service.RouteService;
-import dev.bruenker.buurekrom.paths.service.UserService;
 import dev.bruenker.buurekrom.paths.shared.geojson.GeoJsonConverter;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,9 +25,6 @@ class RouteControllerTest {
 
     @MockitoBean
     private RouteService routeService;
-
-    @MockitoBean
-    private UserService userService;
 
     @MockitoBean
     private GeoJsonConverter geoJsonConverter;

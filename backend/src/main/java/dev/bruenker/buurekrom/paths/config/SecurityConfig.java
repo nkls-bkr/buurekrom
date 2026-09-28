@@ -3,23 +3,28 @@ package dev.bruenker.buurekrom.paths.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.bruenker.buurekrom.paths.shared.ErrorResponse;
 import jakarta.annotation.Nonnull;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.ProviderManager;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.List;
 
 import static java.util.Objects.requireNonNull;
 
@@ -50,8 +55,8 @@ public class SecurityConfig {
                 .exceptionHandling(e -> e.authenticationEntryPoint(unauthorizedEntryPoint()))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/public/**").permitAll()
-                        .requestMatchers("/api/**").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/shared/routes/{shareToken}").permitAll()
+                        .requestMatchers("/api/**").hasAuthority("BETA")
                         .anyRequest().permitAll()
                 )
                 .logout(l -> l
@@ -66,16 +71,27 @@ public class SecurityConfig {
 
     @Bean
     @Nonnull
-    public AuthenticationManager authenticationManager(
-            @Nonnull final UserDetailsService userDetailsService,
-            @Nonnull final PasswordEncoder passwordEncoder
-    ) {
-        requireNonNull(userDetailsService, "userDetailsService");
-        requireNonNull(passwordEncoder, "passwordEncoder");
+    public AuthenticationManager authenticationManager(@Value("${app.beta-password}") final String password) {
+        if (password.isBlank()) {
+            throw new IllegalArgumentException("BETA_PASSWORD must not be blank");
+        }
+        final byte[] expected = digest(password);
+        return authentication -> {
+            if (!(authentication.getCredentials() instanceof String supplied)
+                    || !MessageDigest.isEqual(expected, digest(supplied))) {
+                throw new BadCredentialsException("Invalid beta password");
+            }
+            return UsernamePasswordAuthenticationToken.authenticated(
+                    "beta", null, List.of(new SimpleGrantedAuthority("BETA")));
+        };
+    }
 
-        final DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
-        provider.setPasswordEncoder(passwordEncoder);
-        return new ProviderManager(provider);
+    private static byte[] digest(final String value) {
+        try {
+            return MessageDigest.getInstance("SHA-256").digest(value.getBytes(StandardCharsets.UTF_8));
+        } catch (NoSuchAlgorithmException ex) {
+            throw new IllegalStateException(ex);
+        }
     }
 
     @Nonnull

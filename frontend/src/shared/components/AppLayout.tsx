@@ -24,7 +24,7 @@ export function AppLayout() {
 
   function handleLogout() {
     logoutMutation.mutate(undefined, {
-      onSettled: () => navigate("/login", { replace: true }),
+      onSuccess: () => navigate("/login", { replace: true }),
     });
   }
 
@@ -45,7 +45,7 @@ export function AppLayout() {
               </span>
               <span className="inline-flex items-center gap-1 text-[0.625rem] font-medium text-outline-variant">
                 <span className="rounded-sm border border-outline-variant bg-surface-container-highest px-1 py-px text-[0.5rem] font-semibold uppercase tracking-wide text-on-surface shadow-sm">
-                  Alpha
+                  Beta
                 </span>
                 {meta?.stage && meta.stage.toLowerCase() !== "prod" && (
                   <span className="rounded-sm border border-tertiary bg-tertiary-container px-1 py-px text-[0.5rem] font-semibold uppercase tracking-wide text-on-primary shadow-sm">

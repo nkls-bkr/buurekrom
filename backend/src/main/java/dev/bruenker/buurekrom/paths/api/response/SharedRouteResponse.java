@@ -8,22 +8,22 @@ import jakarta.annotation.Nullable;
 
 import static java.util.Objects.requireNonNull;
 
-public record PublicRouteResponse(
+public record SharedRouteResponse(
         @Nonnull Long id,
         @Nullable String name,
         @Nonnull GeoJsonLineString geometry
 ) {
 
-    public PublicRouteResponse {
+    public SharedRouteResponse {
         requireNonNull(id, "id");
         requireNonNull(geometry, "geometry");
     }
 
     @Nonnull
-    public static PublicRouteResponse from(@Nonnull final Route route, @Nonnull final GeoJsonConverter converter) {
+    public static SharedRouteResponse from(@Nonnull final Route route, @Nonnull final GeoJsonConverter converter) {
         requireNonNull(route, "route");
         requireNonNull(converter, "converter");
-        return new PublicRouteResponse(
+        return new SharedRouteResponse(
                 requireNonNull(route.getId(), "route.id"),
                 route.getName(),
                 converter.toGeoJson(route.getGeometry())

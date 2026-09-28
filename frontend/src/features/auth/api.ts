@@ -3,18 +3,17 @@ import { apiFetch } from "@/shared/http.ts";
 import { ApiError } from "@/shared/api-error.ts";
 
 export interface LoginRequest {
-  username: string;
   password: string;
 }
 
-export interface AuthUser {
-  username: string;
+export interface AuthSession {
+  authenticated: boolean;
 }
 
-export const ME_QUERY_KEY = ["auth", "me"] as const;
+export const SESSION_QUERY_KEY = ["auth", "session"] as const;
 
-async function login(request: LoginRequest): Promise<AuthUser> {
-  return apiFetch<AuthUser>("/auth/login", {
+async function login(request: LoginRequest): Promise<AuthSession> {
+  return apiFetch<AuthSession>("/auth/login", {
     method: "POST",
     body: JSON.stringify(request),
   });
@@ -24,9 +23,9 @@ async function logout(): Promise<void> {
   return apiFetch<void>("/auth/logout", { method: "POST" });
 }
 
-async function fetchMe(): Promise<AuthUser | null> {
+async function fetchAuthSession(): Promise<AuthSession | null> {
   try {
-    return await apiFetch<AuthUser>("/auth/me");
+    return await apiFetch<AuthSession>("/auth/session");
   } catch (error) {
     if (error instanceof ApiError && error.status === 401) {
       return null;
@@ -39,8 +38,8 @@ export function useLoginMutation() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: login,
-    onSuccess: (user) => {
-      queryClient.setQueryData(ME_QUERY_KEY, user);
+    onSuccess: (session) => {
+      queryClient.setQueryData(SESSION_QUERY_KEY, session);
     },
   });
 }
@@ -50,18 +49,18 @@ export function useLogoutMutation() {
   return useMutation({
     mutationFn: logout,
     onSuccess: () => {
-      queryClient.setQueryData(ME_QUERY_KEY, null);
-      queryClient.removeQueries();
+      queryClient.clear();
+      queryClient.setQueryData(SESSION_QUERY_KEY, null);
     },
   });
 }
 
-export function useMe() {
-  return useQuery<AuthUser | null>({
-    queryKey: ME_QUERY_KEY,
-    queryFn: fetchMe,
-    staleTime: Infinity,
+export function useAuthSession() {
+  return useQuery<AuthSession | null>({
+    queryKey: SESSION_QUERY_KEY,
+    queryFn: fetchAuthSession,
+    staleTime: 0,
     retry: false,
-    refetchOnWindowFocus: false,
+    refetchOnWindowFocus: true,
   });
 }

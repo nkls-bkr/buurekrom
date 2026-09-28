@@ -1,4 +1,5 @@
 app:
+  beta-password: ${BETA_PASSWORD}
   stage: ${APP_STAGE:local}
 
 spring:

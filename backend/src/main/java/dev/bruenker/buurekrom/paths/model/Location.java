@@ -27,11 +27,6 @@ public class Location {
     @Nonnull
     private Point geometry;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "owner_id", nullable = false)
-    @Nonnull
-    private User owner;
-
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     @Nullable
@@ -44,13 +39,11 @@ public class Location {
             @Nullable final Long id,
             @Nullable final String name,
             @Nonnull final Point geometry,
-            @Nonnull final User owner,
             @Nullable final LocalDateTime createdAt
     ) {
         this.id = id;
         this.name = name;
         this.geometry = requireNonNull(geometry, "geometry");
-        this.owner = requireNonNull(owner, "owner");
         this.createdAt = createdAt;
     }
 
@@ -79,15 +72,6 @@ public class Location {
 
     public void setGeometry(@Nonnull final Point geometry) {
         this.geometry = requireNonNull(geometry, "geometry");
-    }
-
-    @Nonnull
-    public User getOwner() {
-        return owner;
-    }
-
-    public void setOwner(@Nonnull final User owner) {
-        this.owner = requireNonNull(owner, "owner");
     }
 
     @Nullable

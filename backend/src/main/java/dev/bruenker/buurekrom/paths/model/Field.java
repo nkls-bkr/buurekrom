@@ -28,11 +28,6 @@ public class Field {
     @Nonnull
     private Polygon geometry;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "owner_id", nullable = false)
-    @Nonnull
-    private User owner;
-
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     @Nullable
@@ -50,14 +45,12 @@ public class Field {
             @Nullable final Long id,
             @Nonnull final String name,
             @Nonnull final Polygon geometry,
-            @Nonnull final User owner,
             @Nullable final LocalDateTime createdAt,
             @Nullable final LocalDateTime updatedAt
     ) {
         this.id = id;
         this.name = requireNonNull(name, "name");
         this.geometry = requireNonNull(geometry, "geometry");
-        this.owner = requireNonNull(owner, "owner");
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
@@ -87,15 +80,6 @@ public class Field {
 
     public void setGeometry(@Nonnull final Polygon geometry) {
         this.geometry = requireNonNull(geometry, "geometry");
-    }
-
-    @Nonnull
-    public User getOwner() {
-        return owner;
-    }
-
-    public void setOwner(@Nonnull final User owner) {
-        this.owner = requireNonNull(owner, "owner");
     }
 
     @Nullable

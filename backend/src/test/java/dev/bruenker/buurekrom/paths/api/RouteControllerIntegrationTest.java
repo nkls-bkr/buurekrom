@@ -3,7 +3,7 @@ package dev.bruenker.buurekrom.paths.api;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.bruenker.buurekrom.paths.model.Route;
 import dev.bruenker.buurekrom.paths.shared.geojson.GeoJsonConverter;
-import dev.bruenker.buurekrom.paths.support.BuurekromIntegrationTest;
+import dev.bruenker.buurekrom.paths.support.BuurekromTestcontainersTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +15,7 @@ import java.util.UUID;
 import static dev.bruenker.buurekrom.paths.api.RouteFixtures.aRoute;
 import static org.assertj.core.api.Assertions.*;
 
-class RouteControllerIntegrationTest extends BuurekromIntegrationTest {
+class RouteControllerIntegrationTest extends BuurekromTestcontainersTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -34,7 +34,7 @@ class RouteControllerIntegrationTest extends BuurekromIntegrationTest {
     }
 
     @Test
-    @WithMockUser(TEST_USERNAME)
+    @WithMockUser(authorities = "BETA")
     void shouldReturnShareToken_whenAllConditionsAreMet() throws Exception {
         final Route route = aRoute().build();
 

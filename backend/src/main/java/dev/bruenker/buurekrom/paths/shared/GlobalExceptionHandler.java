@@ -2,7 +2,6 @@ package dev.bruenker.buurekrom.paths.shared;
 
 import dev.bruenker.buurekrom.paths.exception.InvalidCredentialsException;
 import dev.bruenker.buurekrom.paths.exception.NotFoundException;
-import dev.bruenker.buurekrom.paths.exception.UsernameAlreadyTakenException;
 import dev.bruenker.buurekrom.paths.shared.geojson.InvalidGeoJsonException;
 import jakarta.annotation.Nonnull;
 import org.springframework.http.HttpStatus;
@@ -20,12 +19,6 @@ public class GlobalExceptionHandler {
     @Nonnull
     public ResponseEntity<ErrorResponse> handleNotFound(@Nonnull final NotFoundException ex) {
         return build(HttpStatus.NOT_FOUND, ex.getMessage());
-    }
-
-    @ExceptionHandler(UsernameAlreadyTakenException.class)
-    @Nonnull
-    public ResponseEntity<ErrorResponse> handleUsernameTaken(@Nonnull final UsernameAlreadyTakenException ex) {
-        return build(HttpStatus.CONFLICT, ex.getMessage());
     }
 
     @ExceptionHandler(InvalidGeoJsonException.class)

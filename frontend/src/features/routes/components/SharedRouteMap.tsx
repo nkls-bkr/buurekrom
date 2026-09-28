@@ -5,9 +5,9 @@ import { SharedRouteLayer } from "@/features/routes/components/SharedRouteLayer"
 import { LocateButton } from "@/features/map/components/LocateButton";
 import { LocationMarker } from "@/features/map/components/LocationMarker";
 import { useOwnPosition } from "@/features/map/useOwnPosition";
-import type { PublicRouteResponse } from "@/features/routes/api";
+import type { SharedRouteResponse } from "@/features/routes/api";
 
-export function SharedRouteMap({ route }: { route: PublicRouteResponse }) {
+export function SharedRouteMap({ route }: { route: SharedRouteResponse }) {
   const {
     position,
     locationFailed,

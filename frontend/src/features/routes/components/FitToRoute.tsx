@@ -1,9 +1,9 @@
 import { useEffect } from "react";
 import { useMap } from "react-leaflet";
 import { fitToCoordinates } from "@/features/map/mapNavigation";
-import type { PublicRouteResponse } from "@/features/routes/api";
+import type { SharedRouteResponse } from "@/features/routes/api";
 
-export function FitToRoute({ route }: { route: PublicRouteResponse }) {
+export function FitToRoute({ route }: { route: SharedRouteResponse }) {
   const map = useMap();
   useEffect(() => {
     fitToCoordinates(map, route.geometry.coordinates);

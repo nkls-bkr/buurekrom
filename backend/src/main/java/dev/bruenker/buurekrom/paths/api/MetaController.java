@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import static java.util.Objects.requireNonNull;
 
 @RestController
-@RequestMapping("/api/public/meta")
+@RequestMapping("/api/meta")
 public class MetaController {
 
     @Nonnull

@@ -38,10 +38,12 @@ export async function apiFetch<T>(
   if (!response.ok) {
     if (
       response.status === 401 &&
-      path !== "/auth/me" &&
+      path !== "/auth/session" &&
       path !== "/auth/login"
     ) {
-      window.location.assign("/login");
+      window.location.assign(
+        `/login?returnTo=${encodeURIComponent(window.location.pathname + window.location.search + window.location.hash)}`,
+      );
     }
     throw new ApiError(response.status, await response.text());
   }

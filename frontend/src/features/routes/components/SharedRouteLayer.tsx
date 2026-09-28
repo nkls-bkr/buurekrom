@@ -1,8 +1,8 @@
 import { Pane, Polyline } from "react-leaflet";
 import { ROUTES_PANE, Z_INDEX_ROUTES_PANE } from "@/shared/z-index.layers.ts";
-import type { PublicRouteResponse } from "@/features/routes/api";
+import type { SharedRouteResponse } from "@/features/routes/api";
 
-export function SharedRouteLayer({ route }: { route: PublicRouteResponse }) {
+export function SharedRouteLayer({ route }: { route: SharedRouteResponse }) {
   return (
     <Pane name={ROUTES_PANE} style={{ zIndex: Z_INDEX_ROUTES_PANE }}>
       <Polyline

@@ -3,7 +3,6 @@ package dev.bruenker.buurekrom.paths.service;
 import dev.bruenker.buurekrom.paths.exception.FieldNotFoundException;
 import dev.bruenker.buurekrom.paths.model.Field;
 import dev.bruenker.buurekrom.paths.repository.FieldRepository;
-import dev.bruenker.buurekrom.paths.model.User;
 import jakarta.annotation.Nonnull;
 import org.locationtech.jts.geom.Polygon;
 import org.springframework.stereotype.Service;
@@ -42,14 +41,12 @@ public class FieldService {
     @Nonnull
     public Field create(
             @Nonnull final String name,
-            @Nonnull final Polygon geometry,
-            @Nonnull final User owner
+            @Nonnull final Polygon geometry
     ) {
         requireNonNull(name, "name");
         requireNonNull(geometry, "geometry");
-        requireNonNull(owner, "owner");
 
-        final Field field = new Field(null, name, geometry, owner, null, null);
+        final Field field = new Field(null, name, geometry, null, null);
 
         return fieldRepository.save(field);
     }

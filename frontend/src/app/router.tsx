@@ -12,17 +12,20 @@ export const router = createBrowserRouter([
   { path: "/login", element: <LoginPage /> },
   { path: "/share/:token", element: <SharedRoutePage /> },
   {
-    path: "/",
-    element: (
-      <RequireAuth>
-        <VisibilityProvider>
-          <SelectionProvider>
-            <AppLayout />
-          </SelectionProvider>
-        </VisibilityProvider>
-      </RequireAuth>
-    ),
-    children: [{ index: true, element: <MapPage /> }],
+    element: <RequireAuth />,
+    children: [
+      {
+        path: "/",
+        element: (
+          <VisibilityProvider>
+            <SelectionProvider>
+              <AppLayout />
+            </SelectionProvider>
+          </VisibilityProvider>
+        ),
+        children: [{ index: true, element: <MapPage /> }],
+      },
+      { path: "*", element: <NotFoundPage /> },
+    ],
   },
-  { path: "*", element: <NotFoundPage /> },
 ]);

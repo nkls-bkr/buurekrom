@@ -1,6 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "@/shared/http";
-import { ApiError } from "@/shared/api-error";
 
 interface GeoJsonLineString {
   type: "LineString";
@@ -19,7 +18,7 @@ export interface RouteResponse {
   createdAt: string | null;
 }
 
-export interface PublicRouteResponse {
+export interface SharedRouteResponse {
   id: number;
   name: string | null;
   geometry: GeoJsonLineString;
@@ -57,15 +56,10 @@ async function shareRoute(routeId: number): Promise<ShareTokenResponse> {
   });
 }
 
-async function fetchSharedRoute(token: string): Promise<PublicRouteResponse> {
-  const response = await fetch(
-    `/api/public/routes/${encodeURIComponent(token)}`,
-    { headers: { Accept: "application/json" } },
+async function fetchSharedRoute(token: string): Promise<SharedRouteResponse> {
+  return apiFetch<SharedRouteResponse>(
+    `/shared/routes/${encodeURIComponent(token)}`,
   );
-  if (!response.ok) {
-    throw new ApiError(response.status, await response.text());
-  }
-  return (await response.json()) as PublicRouteResponse;
 }
 
 export function useRoutes() {
