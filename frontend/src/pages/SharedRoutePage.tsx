@@ -13,7 +13,7 @@ export function SharedRoutePage() {
   }
 
   return (
-    <div className="relative h-screen w-screen">
+    <div className="relative h-dvh w-full">
       {route && <SharedRouteMap route={route} />}
       <SharedRouteBadge />
     </div>

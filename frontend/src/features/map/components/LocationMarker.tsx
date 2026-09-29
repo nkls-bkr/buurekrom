@@ -16,6 +16,13 @@ interface Props {
 
 export function LocationMarker({ position, onPosition, onError }: Props) {
   useEffect(() => {
+    if (!navigator.geolocation) {
+      toast.error(
+        "Standortzugriff ist nicht verfügbar. Öffne die App über HTTPS.",
+      );
+      onError?.();
+      return;
+    }
     const id = navigator.geolocation.watchPosition(
       (pos) => {
         onPosition({ lat: pos.coords.latitude, lng: pos.coords.longitude });
@@ -24,7 +31,7 @@ export function LocationMarker({ position, onPosition, onError }: Props) {
         toast.error(describeGeolocationError(error));
         onError?.();
       },
-      { enableHighAccuracy: true },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 },
     );
     return () => navigator.geolocation.clearWatch(id);
   }, [onPosition, onError]);

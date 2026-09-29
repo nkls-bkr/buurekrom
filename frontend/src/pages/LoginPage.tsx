@@ -1,3 +1,4 @@
+import { useLayoutEffect } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -7,7 +8,6 @@ import { useLoginMutation, useAuthSession } from "../features/auth/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import fieldImg from "@/assets/field.jpg";
 
 const schema = z.object({
   password: z.string().min(1),
@@ -19,6 +19,19 @@ export function LoginPage() {
   const loginMutation = useLoginMutation();
   const { data: session } = useAuthSession();
   const location = useLocation();
+  useLayoutEffect(() => {
+    const themeColor = document.querySelector<HTMLMetaElement>(
+      'meta[name="theme-color"]',
+    );
+    if (!themeColor) return;
+    const previousColor = themeColor.content;
+    themeColor.content = getComputedStyle(document.documentElement)
+      .getPropertyValue("--background")
+      .trim();
+    return () => {
+      themeColor.content = previousColor;
+    };
+  }, []);
   const from: unknown =
     location.state?.from ??
     new URLSearchParams(location.search).get("returnTo");
@@ -56,18 +69,10 @@ export function LoginPage() {
   }
 
   return (
-    <main className="relative flex min-h-full items-center justify-center p-6">
-      <img
-        src={fieldImg}
-        alt=""
-        aria-hidden="true"
-        className="absolute inset-0 h-full w-full object-cover"
-      />
-      <div className="absolute inset-0 bg-white/30 backdrop-blur-sm" />
-
+    <main className="login-page safe-page relative flex h-dvh flex-col overflow-y-auto bg-background">
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="relative flex w-full max-w-sm flex-col gap-6 rounded-xl bg-card p-8 shadow-card"
+        className="relative mx-auto my-auto flex w-full max-w-sm shrink-0 flex-col gap-6 rounded-xl bg-card p-8 shadow-card"
       >
         <div className="flex flex-row items-center justify-center gap-2">
           <img

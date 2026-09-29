@@ -1,9 +1,4 @@
-import {
-  LandPlotIcon,
-  MapPinIcon,
-  RouteIcon,
-  XIcon,
-} from "lucide-react";
+import { LandPlotIcon, MapPinIcon, RouteIcon, XIcon } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -43,12 +38,12 @@ export function SelectionToolbar() {
   const label = name ?? FALLBACK_NAMES[selection.kind];
 
   return (
-    <div className="absolute top-4 left-1/2 z-1000 flex -translate-x-1/2 items-center gap-2 rounded-full bg-card px-3 py-1.5 shadow-card">
+    <div className="absolute top-4 left-1/2 z-1000 flex max-w-[calc(100%-2rem)] -translate-x-1/2 items-center gap-2 rounded-full bg-card px-3 py-1.5 shadow-card">
       <Icon className="size-4 text-muted-foreground/60" />
-      <span className="text-label-md">{label}</span>
+      <span className="min-w-0 truncate text-label-md">{label}</span>
       {selection.kind === SelectionKind.Route && (
         <>
-          <ShareRouteButton routeId={selection.id} />
+          <ShareRouteButton key={selection.id} routeId={selection.id} />
           <Separator orientation="vertical" className="my-1" />
         </>
       )}

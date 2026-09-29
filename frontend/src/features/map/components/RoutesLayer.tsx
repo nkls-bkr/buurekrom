@@ -6,7 +6,7 @@ import {
   useSelection,
 } from "@/features/map/selection/selection";
 import { ROUTES_PANE, Z_INDEX_ROUTES_PANE } from "@/shared/z-index.layers.ts";
-import { useRouteVisibility } from "@/features/map/visibility/visibility";
+import { useRouteVisibility } from "@/features/routes/visibility/visibility";
 
 export function RoutesLayer() {
   const { data } = useRoutes();

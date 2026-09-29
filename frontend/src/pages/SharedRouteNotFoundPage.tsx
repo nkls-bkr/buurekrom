@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 
 export function SharedRouteNotFoundPage() {
   return (
-    <div className="flex h-screen w-screen items-center justify-center bg-primary">
+    <div className="safe-page flex min-h-dvh w-full flex-col items-center justify-center gap-6 bg-primary">
       <div className="flex max-w-md flex-col items-center rounded-2xl bg-primary-container p-4 text-center text-on-primary shadow-card">
         <img
           src="/buurekrom-inprogress.png"
@@ -16,11 +16,11 @@ export function SharedRouteNotFoundPage() {
         <p className="text-body-md opacity-80 mb-4">
           Überprüfe ob der Link korrekt ist und versuche es erneut.
         </p>
-        <Button render={<Link to="/" />} className="gap-2">
+        <Button render={<Link to="/" />} nativeButton={false} className="gap-2">
           Zurück zur Startseite
         </Button>
       </div>
-      <div className="absolute bottom-6 left-1/2 flex -translate-x-1/2 flex-row items-center gap-2 text-on-primary">
+      <div className="flex flex-row items-center gap-2 text-on-primary">
         <img
           src="/buurekrom.svg"
           alt="Buurekrom"

@@ -75,7 +75,8 @@ body,
 
 body {
   margin: 0;
-  background-color: var(--color-background);
+  /* WebKit uses the document background for the area behind its system bars. */
+  background-color: var(--color-primary);
   color: var(--color-on-surface);
   font-family: var(--font-sans);
   font-size: var(--text-body-lg);
@@ -197,12 +198,231 @@ body {
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply text-foreground;
   }
   html {
     @apply font-sans;
   }
   .leaflet-container path.leaflet-interactive:focus {
     outline: none;
+  }
+}
+
+/* Keep controls clear of the notch, home indicator and Safari's dynamic bars. */
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+#root {
+  height: 100dvh;
+  min-width: 0;
+  background-color: var(--color-background);
+}
+
+.app-shell {
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
+}
+
+html:has(.login-page),
+body:has(.login-page) {
+  background-color: var(--color-background);
+}
+
+/* Solid viewport edges let Safari match both system bars to the login surface. */
+.login-page::before,
+.login-page::after {
+  content: "";
+  position: fixed;
+  inset-inline: 0;
+  z-index: 1;
+  pointer-events: none;
+  background-color: var(--color-background);
+}
+
+.login-page::before {
+  top: 0;
+  height: max(1rem, env(safe-area-inset-top));
+}
+
+.login-page::after {
+  bottom: 0;
+  height: max(1rem, env(safe-area-inset-bottom));
+}
+
+.app-mobile-header {
+  /* Keep this header viewport-fixed so WebKit extends its solid color into the status bar. */
+  height: calc(3.5rem + env(safe-area-inset-top));
+  padding: env(safe-area-inset-top) max(1rem, env(safe-area-inset-right)) 0
+    max(1rem, env(safe-area-inset-left));
+}
+
+.app-content {
+  top: calc(3.5rem + env(safe-area-inset-top));
+  min-width: 0;
+  min-height: 0;
+}
+
+@media (min-width: 1024px) {
+  .app-content {
+    top: 0;
+  }
+}
+
+.safe-page {
+  padding: max(1rem, env(safe-area-inset-top))
+    max(1rem, env(safe-area-inset-right)) max(1rem, env(safe-area-inset-bottom))
+    max(1rem, env(safe-area-inset-left));
+}
+
+.safe-page-content {
+  padding-left: max(1.4rem, env(safe-area-inset-left));
+  padding-right: max(1.4rem, env(safe-area-inset-right));
+  padding-bottom: max(2rem, env(safe-area-inset-bottom));
+}
+
+.sidebar-safe-content {
+  padding: env(safe-area-inset-top) env(safe-area-inset-right)
+    env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+
+.safe-sheet {
+  max-width: calc(100vw - 1rem);
+  max-height: 100dvh;
+}
+.safe-sheet [data-slot="sheet-close"] {
+  top: calc(0.75rem + env(safe-area-inset-top));
+  right: max(0.75rem, env(safe-area-inset-right));
+}
+[data-mobile="true"] [data-slot="sidebar-header"] {
+  padding-right: 3.5rem;
+}
+
+.viewport-dialog {
+  top: calc(
+    var(--visual-viewport-top, 0px) + var(--visual-viewport-height, 100dvh) / 2
+  );
+  max-height: calc(
+    var(--visual-viewport-height, 100dvh) - 2rem - env(safe-area-inset-top) -
+      env(safe-area-inset-bottom)
+  );
+  max-width: min(
+    24rem,
+    calc(100vw - 2rem - env(safe-area-inset-left) - env(safe-area-inset-right))
+  );
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scroll-padding-block: 1rem;
+}
+
+.map-controls {
+  left: max(1rem, env(safe-area-inset-left));
+  bottom: calc(1.5rem + env(safe-area-inset-bottom));
+}
+
+.drawing-actions {
+  left: calc(4.5rem + env(safe-area-inset-left));
+  right: max(1rem, env(safe-area-inset-right));
+  bottom: calc(1.5rem + env(safe-area-inset-bottom));
+  max-width: 24rem;
+  margin-inline: auto;
+}
+
+.shared-route-badge {
+  top: calc(1rem + env(safe-area-inset-top));
+}
+.leaflet-bottom {
+  bottom: env(safe-area-inset-bottom);
+}
+.leaflet-right {
+  right: env(safe-area-inset-right);
+}
+
+.leaflet-bottom.leaflet-right {
+  left: 0;
+  right: 0;
+}
+
+.leaflet-container .leaflet-control-attribution {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: 100%;
+  text-align: center;
+  padding: 2px 6px;
+  background: transparent;
+  color: #17341d;
+  font-size: 11px;
+  line-height: 1.4;
+  text-shadow:
+    -1px -1px 1px #fdf9f0,
+    1px -1px 1px #fdf9f0,
+    -1px 1px 1px #fdf9f0,
+    1px 1px 1px #fdf9f0;
+}
+
+.leaflet-control-attribution a {
+  color: inherit;
+}
+
+.leaflet-control-attribution a:hover,
+.leaflet-control-attribution a:focus-visible {
+  color: #17341d;
+  text-decoration: underline;
+}
+
+.leaflet-control-attribution a:focus-visible {
+  outline: 2px solid #17341d;
+  outline-offset: 2px;
+}
+
+@media (pointer: coarse) {
+  /* Preserve pinch-to-zoom; only suppress double-tap delays on controls. */
+  button,
+  a,
+  input,
+  select,
+  label {
+    touch-action: manipulation;
+  }
+  [data-slot="button"],
+  [data-slot="sidebar-menu-button"],
+  [data-slot="sidebar-trigger"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  input,
+  select,
+  textarea {
+    min-height: 44px;
+    font-size: 16px;
+  }
+  .leaflet-marker-icon.marker-icon {
+    width: 28px !important;
+    height: 28px !important;
+    margin-left: -14px !important;
+    margin-top: -14px !important;
+  }
+}
+
+@media (max-height: 500px) and (pointer: coarse) {
+  .map-controls,
+  .map-tools {
+    flex-direction: row;
+    gap: 0.5rem;
+  }
+  .drawing-actions {
+    bottom: calc(5rem + env(safe-area-inset-bottom));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-position-pulse,
+  .animate-spin {
+    animation: none;
   }
 }
