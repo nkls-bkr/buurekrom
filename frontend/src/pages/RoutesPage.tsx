@@ -72,13 +72,6 @@ export function RoutesPage() {
               Finde deine Routen und wähle aus, welche auf der Karte erscheinen.
             </p>
           </div>
-          <Button
-            render={<Link to="/" />}
-            nativeButton={false}
-            variant="outline"
-          >
-            <MapIcon /> Zur Karte
-          </Button>
         </header>
 
         <section
@@ -186,8 +179,8 @@ export function RoutesPage() {
             ) : (
               <ul className="divide-y overflow-hidden rounded-xl border bg-card">
                 {filteredRoutes.map((route) => (
-                  <li key={route.id}>
-                    <label className="flex min-h-16 cursor-pointer items-center gap-3 px-4 py-3 hover:bg-muted/50">
+                  <li key={route.id} className="flex flex-wrap items-center gap-x-4 px-4 py-3 hover:bg-muted/50">
+                    <label className="flex min-h-10 min-w-0 flex-1 cursor-pointer items-center gap-3">
                       <Checkbox
                         checked={isVisible(route.id)}
                         onCheckedChange={() => toggleVisibility(route.id)}
@@ -205,6 +198,15 @@ export function RoutesPage() {
                         </span>
                       </span>
                     </label>
+                    <Button
+                      render={<Link to={`/?route=${route.id}`} />}
+                      nativeButton={false}
+                      variant="outline"
+                      size="sm"
+                      aria-label={`${route.name || `Route #${route.id}`} auf Karte zeigen`}
+                    >
+                      <MapIcon /> Auf Karte zeigen
+                    </Button>
                   </li>
                 ))}
               </ul>

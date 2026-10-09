@@ -1,4 +1,5 @@
 import { MapViewport } from "@/features/map/components/MapViewport";
+import { FocusRoute } from "@/features/map/components/FocusRoute";
 import { MapControls } from "@/features/map/components/MapControls";
 import { AttributionControl, MapContainer, TileLayer } from "react-leaflet";
 import { DeleteSelectionButton } from "@/features/map/components/DeleteSelectionButton";
@@ -34,6 +35,7 @@ export function MapPage() {
         style={{ height: "100%", width: "100%" }}
       >
         <MapViewport />
+        <FocusRoute />
         <AttributionControl prefix={false} />
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
