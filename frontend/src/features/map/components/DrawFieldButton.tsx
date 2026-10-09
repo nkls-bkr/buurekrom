@@ -1,10 +1,10 @@
-import { useState, useEffect, useRef } from "react";
+import { type ReactNode, useState, useEffect, useRef } from "react";
 import { useMap } from "react-leaflet";
 import "@geoman-io/leaflet-geoman-free";
 import type L from "leaflet";
 
 type PmCreateHandler = (event: { layer: L.Layer }) => void;
-import { LandPlotIcon, XIcon } from "lucide-react";
+import { XIcon } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,13 +18,16 @@ import {
 } from "@/components/ui/dialog";
 import { useCreateFieldMutation } from "@/features/fields/api";
 
-export function DrawFieldButton() {
+export function DrawFieldButton({
+  children,
+}: {
+  children: (start: () => void, drawing: boolean) => ReactNode;
+}) {
   const map = useMap();
   const [isOpen, setOpen] = useState(false);
   const [drawing, setDrawing] = useState(false);
   const [pendingLayer, setPendingLayer] = useState<L.Layer | null>(null);
   const [name, setName] = useState("");
-  const createHandlerRef = useRef<PmCreateHandler | null>(null);
   const createField = useCreateFieldMutation();
   const nameInputRef = useRef<HTMLInputElement>(null);
 
@@ -39,24 +42,26 @@ export function DrawFieldButton() {
       finishOn: "dblclick",
     });
     setDrawing(true);
+  }
+
+  useEffect(() => {
+    if (!drawing) return;
 
     const handler: PmCreateHandler = ({ layer }) => {
-      createHandlerRef.current = null;
       map.pm.disableDraw();
       setDrawing(false);
       setPendingLayer(layer);
       map.removeLayer(layer);
       setOpen(true);
     };
-    createHandlerRef.current = handler;
     map.once("pm:create", handler);
-  }
+    return () => {
+      map.off("pm:create", handler);
+      map.pm.disableDraw();
+    };
+  }, [drawing, map]);
 
   function cancelDraw() {
-    if (createHandlerRef.current) {
-      map.off("pm:create", createHandlerRef.current);
-      createHandlerRef.current = null;
-    }
     map.pm.disableDraw();
     setDrawing(false);
     setOpen(false);
@@ -95,20 +100,14 @@ export function DrawFieldButton() {
 
   return (
     <>
-      {!drawing && (
-        <Button
-          variant="secondary"
-          onClick={startDraw}
-          size="icon"
-          className="shadow-card"
-          aria-label="Feld zeichnen"
-        >
-          <LandPlotIcon className="size-4" />
-        </Button>
-      )}
+      {children(startDraw, drawing)}
 
       {drawing && (
         <div className="drawing-actions fixed z-1000 flex flex-col items-center gap-2">
+          <span className="rounded-xl bg-card px-3 py-2 text-center text-label-md shadow-card">
+            Eckpunkte antippen. Zum Abschließen den ersten Punkt erneut
+            antippen.
+          </span>
           <Button
             variant="outline"
             size="sm"
