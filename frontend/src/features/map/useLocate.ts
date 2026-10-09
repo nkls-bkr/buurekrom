@@ -23,7 +23,13 @@ export function useLocate({
   const locate = useCallback(() => {
     if (position) {
       map.flyTo(position, 16, { animate: false });
-      map.once("moveend", () => map.setZoom(16));
+      return;
+    }
+    if (!navigator.geolocation) {
+      toast.error(
+        "Standortzugriff ist nicht verfügbar. Öffne die App über HTTPS.",
+      );
+      onError?.();
       return;
     }
     onRequest?.();
@@ -31,6 +37,7 @@ export function useLocate({
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         setRequesting(false);
+        map.setView([pos.coords.latitude, pos.coords.longitude], 16);
         onPosition?.({
           lat: pos.coords.latitude,
           lng: pos.coords.longitude,
@@ -41,7 +48,7 @@ export function useLocate({
         toast.error(describeGeolocationError(error));
         onError?.();
       },
-      { enableHighAccuracy: true },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 },
     );
   }, [map, position, onPosition, onError, onRequest]);
 

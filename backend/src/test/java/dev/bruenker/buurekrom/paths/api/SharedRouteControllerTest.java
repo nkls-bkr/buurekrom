@@ -2,7 +2,6 @@ package dev.bruenker.buurekrom.paths.api;
 
 import dev.bruenker.buurekrom.paths.exception.RouteNotFoundException;
 import dev.bruenker.buurekrom.paths.model.Route;
-import dev.bruenker.buurekrom.paths.model.User;
 import dev.bruenker.buurekrom.paths.service.RouteService;
 import dev.bruenker.buurekrom.paths.shared.geojson.GeoJsonConverter;
 import dev.bruenker.buurekrom.paths.shared.geojson.GeoJsonLineString;
@@ -12,7 +11,9 @@ import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.PrecisionModel;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import dev.bruenker.buurekrom.paths.config.SecurityConfig;
+import dev.bruenker.buurekrom.paths.config.JacksonConfig;
+import org.springframework.context.annotation.Import;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -24,9 +25,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(PublicRouteController.class)
-@AutoConfigureMockMvc(addFilters = false)
-class PublicRouteControllerTest {
+@WebMvcTest(SharedRouteController.class)
+@Import({SecurityConfig.class, JacksonConfig.class})
+class SharedRouteControllerTest {
 
     private static final GeometryFactory GEOMETRY_FACTORY =
             new GeometryFactory(new PrecisionModel(), 4326);
@@ -41,13 +42,12 @@ class PublicRouteControllerTest {
     private GeoJsonConverter geoJsonConverter;
 
     @Test
-    void findByShareToken_returnsRouteWithoutOwnerOrCreatedAt() throws Exception {
-        final User owner = new User(1L, "alice", "secret", null);
+    void findByShareToken_returnsRouteWithoutAuthentication() throws Exception {
         final LineString geometry = GEOMETRY_FACTORY.createLineString(new Coordinate[]{
                 new Coordinate(10.0, 50.0),
                 new Coordinate(10.1, 50.1)
         });
-        final Route route = new Route(7L, "Feldweg", geometry, owner, null, "abc");
+        final Route route = new Route(7L, "Feldweg", geometry, null, "abc");
         final GeoJsonLineString geoJson = new GeoJsonLineString(List.of(
                 List.of(10.0, 50.0),
                 List.of(10.1, 50.1)
@@ -56,13 +56,12 @@ class PublicRouteControllerTest {
         when(routeService.findByShareToken("abc")).thenReturn(route);
         when(geoJsonConverter.toGeoJson(geometry)).thenReturn(geoJson);
 
-        mockMvc.perform(get("/api/public/routes/abc"))
+        mockMvc.perform(get("/api/shared/routes/abc"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(7))
                 .andExpect(jsonPath("$.name").value("Feldweg"))
                 .andExpect(jsonPath("$.geometry.type").value("LineString"))
                 .andExpect(jsonPath("$.geometry.coordinates[0][0]").value(10.0))
-                .andExpect(jsonPath("$.owner").doesNotExist())
                 .andExpect(jsonPath("$.createdAt").doesNotExist())
                 .andExpect(jsonPath("$.shareToken").doesNotExist());
     }
@@ -72,7 +71,7 @@ class PublicRouteControllerTest {
         when(routeService.findByShareToken("missing"))
                 .thenThrow(new RouteNotFoundException("missing"));
 
-        mockMvc.perform(get("/api/public/routes/missing"))
+        mockMvc.perform(get("/api/shared/routes/missing"))
                 .andExpect(status().isNotFound());
     }
 }

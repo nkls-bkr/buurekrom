@@ -1,4 +1,7 @@
-import { MapContainer, TileLayer } from "react-leaflet";
+import { MapViewport } from "@/features/map/components/MapViewport";
+import { FocusRoute } from "@/features/map/components/FocusRoute";
+import { MapControls } from "@/features/map/components/MapControls";
+import { AttributionControl, MapContainer, TileLayer } from "react-leaflet";
 import { DeleteSelectionButton } from "@/features/map/components/DeleteSelectionButton";
 import { DrawFieldButton } from "@/features/map/components/DrawFieldButton";
 import { DrawRouteButton } from "@/features/map/components/DrawRouteButton";
@@ -10,7 +13,6 @@ import { SelectionToolbar } from "@/features/map/components/SelectionToolbar";
 import { CENTER_OF_GERMANY } from "@/constants.ts";
 import { LocationsLayer } from "@/features/map/components/LocationsLayer.tsx";
 import { DrawLocationButton } from "@/features/map/components/DrawLocationButton.tsx";
-import { RouteVisibilityControl } from "@/features/map/components/RouteVisibilityControl";
 import { useOwnPosition } from "@/features/map/useOwnPosition";
 
 export function MapPage() {
@@ -29,8 +31,12 @@ export function MapPage() {
         zoom={6}
         maxZoom={28}
         zoomControl={false}
+        attributionControl={false}
         style={{ height: "100%", width: "100%" }}
       >
+        <MapViewport />
+        <FocusRoute />
+        <AttributionControl prefix={false} />
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -45,7 +51,7 @@ export function MapPage() {
           onPosition={handlePosition}
           onError={handleLocationError}
         />
-        <div className="absolute bottom-6 left-4 z-1000 flex flex-col-reverse gap-6">
+        <MapControls>
           <LocateButton
             position={position}
             failed={locationFailed}
@@ -53,14 +59,13 @@ export function MapPage() {
             onError={handleLocationError}
             onRequest={handleLocationRequest}
           />
-          <div className="flex flex-col-reverse gap-2">
+          <div className="map-tools flex flex-col-reverse gap-2">
             <DeleteSelectionButton />
             <DrawFieldButton />
             <DrawRouteButton />
             <DrawLocationButton />
-            <RouteVisibilityControl />
           </div>
-        </div>
+        </MapControls>
       </MapContainer>
       <SelectionToolbar />
     </div>

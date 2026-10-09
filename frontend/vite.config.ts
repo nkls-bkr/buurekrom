@@ -24,9 +24,9 @@ export default defineConfig({
         short_name: "Buurekrom",
         description: "A farms route helper.",
         theme_color: "#17341d",
-        background_color: "#ffffff",
+        background_color: "#17341d",
         display: "standalone",
-        orientation: "portrait",
+        orientation: "any",
         start_url: "/",
         scope: "/",
         icons: [
@@ -91,6 +91,7 @@ export default defineConfig({
     },
   },
   build: {
+    target: "safari16.4",
     // There has been a problem with geoman when minifying the css.
     // Temporarily disabling it to realize testing.
     cssMinify: false,

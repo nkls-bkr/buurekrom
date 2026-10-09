@@ -29,14 +29,11 @@ public class AuthService {
         this.authenticationManager = requireNonNull(authenticationManager, "authenticationManager");
     }
 
-    @Nonnull
-    public String authenticate(
-            @Nonnull final String username,
+    public void authenticate(
             @Nonnull final String rawPassword,
             @Nonnull final HttpServletRequest request,
             @Nonnull final HttpServletResponse response
     ) {
-        requireNonNull(username, "username");
         requireNonNull(rawPassword, "rawPassword");
         requireNonNull(request, "request");
         requireNonNull(response, "response");
@@ -44,17 +41,18 @@ public class AuthService {
         final Authentication authentication;
         try {
             authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(username, rawPassword)
+                    new UsernamePasswordAuthenticationToken("beta", rawPassword)
             );
         } catch (final AuthenticationException ex) {
             throw new InvalidCredentialsException();
         }
 
+        if (request.getSession(false) != null) {
+            request.changeSessionId();
+        }
         final SecurityContext context = SecurityContextHolder.createEmptyContext();
         context.setAuthentication(authentication);
         SecurityContextHolder.setContext(context);
         securityContextRepository.saveContext(context, request, response);
-
-        return authentication.getName();
     }
 }

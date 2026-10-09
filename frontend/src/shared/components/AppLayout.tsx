@@ -1,5 +1,5 @@
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
-import { LogOutIcon, MapIcon } from "lucide-react";
+import { LogOutIcon, MapIcon, RouteIcon } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -12,11 +12,21 @@ import {
   SidebarMenuItem,
   SidebarProvider,
   SidebarTrigger,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { useLogoutMutation } from "@/features/auth/api";
 import { useMeta } from "@/features/meta/api";
 
 export function AppLayout() {
+  return (
+    <SidebarProvider className="app-shell">
+      <AppLayoutContent />
+    </SidebarProvider>
+  );
+}
+
+function AppLayoutContent() {
+  const { setOpenMobile } = useSidebar();
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const logoutMutation = useLogoutMutation();
@@ -24,12 +34,12 @@ export function AppLayout() {
 
   function handleLogout() {
     logoutMutation.mutate(undefined, {
-      onSettled: () => navigate("/login", { replace: true }),
+      onSuccess: () => navigate("/login", { replace: true }),
     });
   }
 
   return (
-    <SidebarProvider>
+    <>
       <Sidebar collapsible="offcanvas">
         <SidebarHeader className="px-4 py-5">
           <div className="flex items-center gap-2">
@@ -45,7 +55,7 @@ export function AppLayout() {
               </span>
               <span className="inline-flex items-center gap-1 text-[0.625rem] font-medium text-outline-variant">
                 <span className="rounded-sm border border-outline-variant bg-surface-container-highest px-1 py-px text-[0.5rem] font-semibold uppercase tracking-wide text-on-surface shadow-sm">
-                  Alpha
+                  Beta
                 </span>
                 {meta?.stage && meta.stage.toLowerCase() !== "prod" && (
                   <span className="rounded-sm border border-tertiary bg-tertiary-container px-1 py-px text-[0.5rem] font-semibold uppercase tracking-wide text-on-primary shadow-sm">
@@ -62,11 +72,22 @@ export function AppLayout() {
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton
+                  onClick={() => setOpenMobile(false)}
                   isActive={pathname === "/"}
                   render={<NavLink to="/" end />}
                 >
                   <MapIcon />
                   Karte
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  onClick={() => setOpenMobile(false)}
+                  isActive={pathname === "/routes"}
+                  render={<NavLink to="/routes" />}
+                >
+                  <RouteIcon />
+                  Routen
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
@@ -89,13 +110,13 @@ export function AppLayout() {
       </Sidebar>
 
       <SidebarInset className="relative">
-        <header className="absolute inset-x-0 top-0 z-10 flex h-14 items-center gap-3 bg-sidebar px-4 text-sidebar-foreground md:hidden">
+        <header className="app-mobile-header fixed inset-x-0 top-0 z-10 flex items-center gap-3 bg-sidebar text-sidebar-foreground lg:hidden">
           <SidebarTrigger />
         </header>
-        <div className="absolute inset-0 top-14 md:top-0">
+        <div className="app-content absolute inset-0">
           <Outlet />
         </div>
       </SidebarInset>
-    </SidebarProvider>
+    </>
   );
 }

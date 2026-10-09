@@ -21,7 +21,7 @@ class MetaControllerTest {
 
     @Test
     void meta_shouldReturnConfiguredStage() throws Exception {
-        mockMvc.perform(get("/api/public/meta"))
+        mockMvc.perform(get("/api/meta"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.stage").value("prod"));
     }

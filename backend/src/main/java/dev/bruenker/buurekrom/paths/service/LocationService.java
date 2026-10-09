@@ -2,7 +2,6 @@ package dev.bruenker.buurekrom.paths.service;
 
 import dev.bruenker.buurekrom.paths.exception.LocationNotFoundException;
 import dev.bruenker.buurekrom.paths.model.Location;
-import dev.bruenker.buurekrom.paths.model.User;
 import dev.bruenker.buurekrom.paths.repository.LocationRepository;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
@@ -34,13 +33,11 @@ public class LocationService {
     @Nonnull
     public Location create(
             @Nullable final String name,
-            @Nonnull final Point geometry,
-            @Nonnull final User owner
+            @Nonnull final Point geometry
     ) {
         requireNonNull(geometry, "geometry");
-        requireNonNull(owner, "owner");
 
-        final Location location = new Location(null, name, geometry, owner, null);
+        final Location location = new Location(null, name, geometry, null);
 
         return locationRepository.save(location);
     }

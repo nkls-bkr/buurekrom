@@ -8,7 +8,7 @@ export interface MetaResponse {
 const META_QUERY_KEY = ["meta"] as const;
 
 async function fetchMeta(): Promise<MetaResponse> {
-  return apiFetch<MetaResponse>("/public/meta");
+  return apiFetch<MetaResponse>("/meta");
 }
 
 export function useMeta() {

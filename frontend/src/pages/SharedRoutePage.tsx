@@ -2,7 +2,7 @@ import { useParams } from "react-router-dom";
 import { useSharedRoute } from "@/features/routes/api";
 import { SharedRouteNotFoundPage } from "@/pages/SharedRouteNotFoundPage";
 import { SharedRouteMap } from "@/features/routes/components/SharedRouteMap";
-import { GuestModeBadge } from "@/features/routes/components/GuestModeBadge";
+import { SharedRouteBadge } from "@/features/routes/components/SharedRouteBadge";
 
 export function SharedRoutePage() {
   const { token } = useParams<{ token: string }>();
@@ -13,9 +13,9 @@ export function SharedRoutePage() {
   }
 
   return (
-    <div className="relative h-screen w-screen">
+    <div className="relative h-dvh w-full">
       {route && <SharedRouteMap route={route} />}
-      <GuestModeBadge />
+      <SharedRouteBadge />
     </div>
   );
 }

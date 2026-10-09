@@ -1,13 +1,15 @@
-import { MapContainer, TileLayer } from "react-leaflet";
+import { MapViewport } from "@/features/map/components/MapViewport";
+import { MapControls } from "@/features/map/components/MapControls";
+import { AttributionControl, MapContainer, TileLayer } from "react-leaflet";
 import { CENTER_OF_GERMANY } from "@/constants.ts";
 import { FitToRoute } from "@/features/routes/components/FitToRoute";
 import { SharedRouteLayer } from "@/features/routes/components/SharedRouteLayer";
 import { LocateButton } from "@/features/map/components/LocateButton";
 import { LocationMarker } from "@/features/map/components/LocationMarker";
 import { useOwnPosition } from "@/features/map/useOwnPosition";
-import type { PublicRouteResponse } from "@/features/routes/api";
+import type { SharedRouteResponse } from "@/features/routes/api";
 
-export function SharedRouteMap({ route }: { route: PublicRouteResponse }) {
+export function SharedRouteMap({ route }: { route: SharedRouteResponse }) {
   const {
     position,
     locationFailed,
@@ -22,8 +24,11 @@ export function SharedRouteMap({ route }: { route: PublicRouteResponse }) {
       zoom={6}
       maxZoom={28}
       zoomControl={false}
+      attributionControl={false}
       style={{ height: "100%", width: "100%" }}
     >
+      <MapViewport />
+      <AttributionControl prefix={false} />
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -37,7 +42,7 @@ export function SharedRouteMap({ route }: { route: PublicRouteResponse }) {
         onPosition={handlePosition}
         onError={handleLocationError}
       />
-      <div className="absolute bottom-6 left-4 z-1000 flex flex-col-reverse gap-6">
+      <MapControls>
         <LocateButton
           position={position}
           failed={locationFailed}
@@ -45,7 +50,7 @@ export function SharedRouteMap({ route }: { route: PublicRouteResponse }) {
           onError={handleLocationError}
           onRequest={handleLocationRequest}
         />
-      </div>
+      </MapControls>
     </MapContainer>
   );
 }

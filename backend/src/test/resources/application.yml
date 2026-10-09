@@ -1,3 +1,6 @@
+app:
+  beta-password: test-beta-password
+
 spring:
   application:
     name: Buurekrom

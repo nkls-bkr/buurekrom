@@ -1,7 +1,6 @@
 package dev.bruenker.buurekrom.paths.service;
 
 import dev.bruenker.buurekrom.paths.model.Route;
-import dev.bruenker.buurekrom.paths.model.User;
 import dev.bruenker.buurekrom.paths.exception.RouteNotFoundException;
 import dev.bruenker.buurekrom.paths.repository.RouteRepository;
 import jakarta.annotation.Nonnull;
@@ -35,13 +34,11 @@ public class RouteService {
     @Nonnull
     public Route create(
             @Nullable final String name,
-            @Nonnull final LineString geometry,
-            @Nonnull final User owner
+            @Nonnull final LineString geometry
     ) {
         requireNonNull(geometry, "geometry");
-        requireNonNull(owner, "owner");
 
-        final Route route = new Route(null, name, geometry, owner, null, null);
+        final Route route = new Route(null, name, geometry, null, null);
 
         return routeRepository.save(route);
     }

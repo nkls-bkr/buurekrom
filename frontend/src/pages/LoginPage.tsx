@@ -1,28 +1,48 @@
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLayoutEffect } from "react";
+import { Navigate, useLocation } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
-import { useLoginMutation, useMe } from "../features/auth/api";
-import { useMeta } from "../features/meta/api";
+import { useLoginMutation, useAuthSession } from "../features/auth/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import fieldImg from "@/assets/field.jpg";
 
 const schema = z.object({
-  username: z.string().min(1),
   password: z.string().min(1),
 });
 
 type LoginFormValues = z.infer<typeof schema>;
 
 export function LoginPage() {
-  const navigate = useNavigate();
   const loginMutation = useLoginMutation();
-  const { data: me } = useMe();
-  const { data: meta } = useMeta();
+  const { data: session } = useAuthSession();
+  const location = useLocation();
+  useLayoutEffect(() => {
+    const themeColor = document.querySelector<HTMLMetaElement>(
+      'meta[name="theme-color"]',
+    );
+    if (!themeColor) return;
+    const previousColor = themeColor.content;
+    themeColor.content = getComputedStyle(document.documentElement)
+      .getPropertyValue("--background")
+      .trim();
+    return () => {
+      themeColor.content = previousColor;
+    };
+  }, []);
+  const from: unknown =
+    location.state?.from ??
+    new URLSearchParams(location.search).get("returnTo");
+  const destination =
+    typeof from === "string" &&
+    from.startsWith("/") &&
+    !from.startsWith("//") &&
+    !from.includes("\\") &&
+    !from.startsWith("/login")
+      ? from
+      : "/";
 
   const {
     register,
@@ -30,40 +50,29 @@ export function LoginPage() {
     formState: { isSubmitting, errors },
   } = useForm<LoginFormValues>({ resolver: zodResolver(schema) });
 
-  useEffect(() => {
-    if (me) {
-      navigate("/", { replace: true });
-    }
-  }, [me, navigate]);
-
   const onSubmit = (data: LoginFormValues) => {
     loginMutation.mutate(data, {
-      onSuccess: () => navigate("/", { replace: true }),
       onError: (error) => {
         const status =
           "status" in error ? (error as { status: number }).status : undefined;
         toast.error(
           status === 401
-            ? "Benutzername oder Passwort ist falsch."
+            ? "Das Beta-Passwort ist falsch."
             : "Anmeldung fehlgeschlagen. Bitte erneut versuchen.",
         );
       },
     });
   };
 
-  return (
-    <main className="relative flex min-h-full items-center justify-center p-6">
-      <img
-        src={fieldImg}
-        alt=""
-        aria-hidden="true"
-        className="absolute inset-0 h-full w-full object-cover"
-      />
-      <div className="absolute inset-0 bg-white/30 backdrop-blur-sm" />
+  if (session?.authenticated) {
+    return <Navigate to={destination} replace />;
+  }
 
+  return (
+    <main className="login-page safe-page relative flex h-dvh flex-col overflow-y-auto bg-background">
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="relative flex w-full max-w-sm flex-col gap-6 rounded-xl bg-card p-8 shadow-card"
+        className="relative mx-auto my-auto flex w-full max-w-sm shrink-0 flex-col gap-6 rounded-xl bg-card p-8 shadow-card"
       >
         <div className="flex flex-row items-center justify-center gap-2">
           <img
@@ -75,37 +84,18 @@ export function LoginPage() {
             <span className="text-[1.5rem]">Buurekrom</span>
             <span className="inline-flex items-center gap-1 text-[0.625rem] font-medium text-outline-variant">
               <span className="rounded-sm border border-outline-variant bg-surface-container-highest px-1 py-px text-[0.5rem] font-semibold uppercase tracking-wide text-on-surface shadow-sm">
-                Alpha
+                Beta
               </span>
-              {meta?.stage && meta.stage.toLowerCase() !== "prod" && (
-                <span className="rounded-sm border border-tertiary bg-tertiary-container px-1 py-px text-[0.5rem] font-semibold uppercase tracking-wide text-on-primary shadow-sm">
-                  {meta.stage}
-                </span>
-              )}
             </span>
           </div>
         </div>
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="username" className="text-body-lg">
-            Benutzername
-          </Label>
-          <Input
-            id="username"
-            type="text"
-            autoComplete="username"
-            aria-invalid={!!errors.username}
-            {...register("username")}
-          />
-          {errors.username && (
-            <p className="text-[0.8rem] font-medium text-destructive">
-              Benutzername ist erforderlich.
-            </p>
-          )}
-        </div>
+        <p className="text-center text-body-sm text-muted-foreground">
+          Gib das gemeinsame Beta-Passwort ein, um die App zu testen.
+        </p>
 
         <div className="flex flex-col gap-2">
           <Label htmlFor="password" className="text-body-lg">
-            Passwort
+            Beta-Passwort
           </Label>
           <Input
             id="password"
@@ -116,7 +106,7 @@ export function LoginPage() {
           />
           {errors.password && (
             <p className="text-[0.8rem] font-medium text-destructive">
-              Passwort ist erforderlich.
+              Das Beta-Passwort ist erforderlich.
             </p>
           )}
         </div>
@@ -134,8 +124,6 @@ export function LoginPage() {
           und befindet sich noch in Entwicklung.
         </p>
       </form>
-
-      <footer className="pointer-events-none absolute inset-x-0 bottom-4 text-center"></footer>
     </main>
   );
 }

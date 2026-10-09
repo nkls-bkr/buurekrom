@@ -2,7 +2,6 @@ package dev.bruenker.buurekrom.paths.service;
 
 import dev.bruenker.buurekrom.paths.exception.RouteNotFoundException;
 import dev.bruenker.buurekrom.paths.model.Route;
-import dev.bruenker.buurekrom.paths.model.User;
 import dev.bruenker.buurekrom.paths.repository.RouteRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -38,12 +37,10 @@ class RouteServiceTest {
     @InjectMocks
     private RouteService routeService;
 
-    private User owner;
     private LineString geometry;
 
     @BeforeEach
     void setUp() {
-        owner = new User(1L, "alice", "secret", null);
         geometry = GEOMETRY_FACTORY.createLineString(new Coordinate[]{
                 new Coordinate(10.0, 50.0),
                 new Coordinate(10.1, 50.1)
@@ -55,7 +52,7 @@ class RouteServiceTest {
 
         @Test
         void shouldGenerateAndPersistNewToken_whenTokenIsAbsent() {
-            final Route route = new Route(42L, "Zum Acker", geometry, owner, null, null);
+            final Route route = new Route(42L, "Zum Acker", geometry, null, null);
             when(routeRepository.findById(42L)).thenReturn(Optional.of(route));
             when(routeRepository.save(any(Route.class))).thenAnswer(inv -> inv.getArgument(0));
 
@@ -72,7 +69,7 @@ class RouteServiceTest {
 
         @Test
         void shouldReturnExistingTokenWithoutSaving_whenTokenAlreadyExists() {
-            final Route route = new Route(42L, "Zum Acker", geometry, owner, null, "existing-token");
+            final Route route = new Route(42L, "Zum Acker", geometry, null, "existing-token");
             when(routeRepository.findById(42L)).thenReturn(Optional.of(route));
 
             final String token = routeService.getOrCreateShareToken(42L);
@@ -97,7 +94,7 @@ class RouteServiceTest {
 
         @Test
         void shouldReturnRoute_whenTokenMatches() {
-            final Route route = new Route(7L, null, geometry, owner, null, "abc");
+            final Route route = new Route(7L, null, geometry, null, "abc");
             when(routeRepository.findByShareToken("abc")).thenReturn(Optional.of(route));
 
             final Route result = routeService.findByShareToken("abc");

@@ -94,7 +94,7 @@ export function DrawLocationButton() {
       )}
 
       {drawing && (
-        <div className="fixed bottom-6 left-1/2 z-1000 flex -translate-x-1/2 flex-col items-center gap-3">
+        <div className="drawing-actions fixed z-1000 flex flex-col items-center gap-2">
           <Button
             variant="outline"
             size="sm"

@@ -7,8 +7,6 @@ import jakarta.annotation.Nonnull;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -39,21 +37,18 @@ public class AuthController {
         requireNonNull(httpRequest, "httpRequest");
         requireNonNull(httpResponse, "httpResponse");
 
-        final String username = authService.authenticate(
-                request.username(),
+        authService.authenticate(
                 request.password(),
                 httpRequest,
                 httpResponse
         );
 
-        return new LoginResponse(username);
+        return new LoginResponse(true);
     }
 
-    @GetMapping("/me")
+    @GetMapping("/session")
     @Nonnull
-    public LoginResponse me(@AuthenticationPrincipal @Nonnull final UserDetails principal) {
-        requireNonNull(principal, "principal");
-
-        return new LoginResponse(principal.getUsername());
+    public LoginResponse session() {
+        return new LoginResponse(true);
     }
 }

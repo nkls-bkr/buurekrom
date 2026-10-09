@@ -1,6 +1,6 @@
 package dev.bruenker.buurekrom.paths.api;
 
-import dev.bruenker.buurekrom.paths.api.response.PublicRouteResponse;
+import dev.bruenker.buurekrom.paths.api.response.SharedRouteResponse;
 import dev.bruenker.buurekrom.paths.model.Route;
 import dev.bruenker.buurekrom.paths.service.RouteService;
 import dev.bruenker.buurekrom.paths.shared.geojson.GeoJsonConverter;
@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.RestController;
 import static java.util.Objects.requireNonNull;
 
 @RestController
-@RequestMapping("/api/public/routes")
-public class PublicRouteController {
+@RequestMapping("/api/shared/routes")
+public class SharedRouteController {
 
     @Nonnull
     private final RouteService routeService;
@@ -22,7 +22,7 @@ public class PublicRouteController {
     @Nonnull
     private final GeoJsonConverter geoJsonConverter;
 
-    public PublicRouteController(
+    public SharedRouteController(
             @Nonnull final RouteService routeService,
             @Nonnull final GeoJsonConverter geoJsonConverter
     ) {
@@ -32,8 +32,8 @@ public class PublicRouteController {
 
     @GetMapping("/{shareToken}")
     @Nonnull
-    public PublicRouteResponse findByShareToken(@PathVariable @Nonnull final String shareToken) {
+    public SharedRouteResponse findByShareToken(@PathVariable @Nonnull final String shareToken) {
         final Route route = routeService.findByShareToken(shareToken);
-        return PublicRouteResponse.from(route, geoJsonConverter);
+        return SharedRouteResponse.from(route, geoJsonConverter);
     }
 }
