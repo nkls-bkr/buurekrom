@@ -2,17 +2,15 @@ import { MapViewport } from "@/features/map/components/MapViewport";
 import { FocusRoute } from "@/features/map/components/FocusRoute";
 import { MapControls } from "@/features/map/components/MapControls";
 import { AttributionControl, MapContainer, TileLayer } from "react-leaflet";
+import { MapCreateDialog } from "@/features/map/components/MapCreateDialog";
 import { DeleteSelectionButton } from "@/features/map/components/DeleteSelectionButton";
-import { DrawFieldButton } from "@/features/map/components/DrawFieldButton";
-import { DrawRouteButton } from "@/features/map/components/DrawRouteButton";
-import { FieldsLayer } from "@/features/map/components/FieldsLayer";
 import { LocateButton } from "@/features/map/components/LocateButton";
+import { FieldsLayer } from "@/features/map/components/FieldsLayer";
 import { LocationMarker } from "@/features/map/components/LocationMarker";
 import { RoutesLayer } from "@/features/map/components/RoutesLayer";
 import { SelectionToolbar } from "@/features/map/components/SelectionToolbar";
 import { CENTER_OF_GERMANY } from "@/constants.ts";
 import { LocationsLayer } from "@/features/map/components/LocationsLayer.tsx";
-import { DrawLocationButton } from "@/features/map/components/DrawLocationButton.tsx";
 import { useOwnPosition } from "@/features/map/useOwnPosition";
 
 export function MapPage() {
@@ -61,9 +59,7 @@ export function MapPage() {
           />
           <div className="map-tools flex flex-col-reverse gap-2">
             <DeleteSelectionButton />
-            <DrawFieldButton />
-            <DrawRouteButton />
-            <DrawLocationButton />
+            <MapCreateDialog />
           </div>
         </MapControls>
       </MapContainer>

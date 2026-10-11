@@ -1,11 +1,11 @@
-import { useRef, useState } from "react";
+import { type ReactNode, useEffect, useState } from "react";
 import { useMap } from "react-leaflet";
 import "@geoman-io/leaflet-geoman-free";
 import type L from "leaflet";
 import type { Point } from "geojson";
 
 type PmCreateHandler = (event: { layer: L.Layer }) => void;
-import { MapPinIcon, XIcon } from "lucide-react";
+import { XIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -19,13 +19,16 @@ import { Label } from "@/components/ui/label";
 import { useCreateLocationMutation } from "@/features/location/api.ts";
 import { LOCATION_ICON } from "@/features/map/components/locationIcon";
 
-export function DrawLocationButton() {
+export function DrawLocationButton({
+  children,
+}: {
+  children: (start: () => void, drawing: boolean) => ReactNode;
+}) {
   const map = useMap();
   const [isOpen, setOpen] = useState(false);
   const [drawing, setDrawing] = useState(false);
   const [pendingGeometry, setPendingGeometry] = useState<Point | null>(null);
   const [name, setName] = useState("");
-  const createHandlerRef = useRef<PmCreateHandler | null>(null);
   const result = useCreateLocationMutation();
 
   function startDraw() {
@@ -34,9 +37,12 @@ export function DrawLocationButton() {
       markerStyle: { icon: LOCATION_ICON },
     });
     setDrawing(true);
+  }
+
+  useEffect(() => {
+    if (!drawing) return;
 
     const handler: PmCreateHandler = ({ layer }) => {
-      createHandlerRef.current = null;
       map.pm.disableDraw();
       setDrawing(false);
       map.removeLayer(layer);
@@ -44,15 +50,14 @@ export function DrawLocationButton() {
       setPendingGeometry(marker.geometry);
       setOpen(true);
     };
-    createHandlerRef.current = handler;
     map.once("pm:create", handler);
-  }
+    return () => {
+      map.off("pm:create", handler);
+      map.pm.disableDraw();
+    };
+  }, [drawing, map]);
 
   function cancelDraw() {
-    if (createHandlerRef.current) {
-      map.off("pm:create", createHandlerRef.current);
-      createHandlerRef.current = null;
-    }
     map.pm.disableDraw();
     setDrawing(false);
     setOpen(false);
@@ -81,20 +86,13 @@ export function DrawLocationButton() {
 
   return (
     <>
-      {!drawing && (
-        <Button
-          variant="secondary"
-          onClick={startDraw}
-          size="icon"
-          className="shadow-card"
-          aria-label="Standort setzen"
-        >
-          <MapPinIcon className="size-4" />
-        </Button>
-      )}
+      {children(startDraw, drawing)}
 
       {drawing && (
         <div className="drawing-actions fixed z-1000 flex flex-col items-center gap-2">
+          <span className="rounded-xl bg-card px-3 py-2 text-center text-label-md shadow-card">
+            Tippe auf die Karte, um den Standort zu setzen.
+          </span>
           <Button
             variant="outline"
             size="sm"
