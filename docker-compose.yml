@@ -2,6 +2,9 @@ services:
   postgres:
     image: postgis/postgis:18-3.6
     container_name: buurekrom
+    # Sets credentials for the postgres database in the spring app
+    labels:
+      org.springframework.boot.service-connection: postgres
     environment:
       POSTGRES_DB: buurekrom
       POSTGRES_USER: postgres
