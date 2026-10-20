@@ -11,10 +11,13 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { DrawFieldButton } from "./DrawFieldButton";
-import { DrawRouteButton } from "./DrawRouteButton";
 import { DrawLocationButton } from "./DrawLocationButton";
 
-export function MapCreateDialog() {
+export function MapCreateDialog({
+  onCreateRoute,
+}: {
+  onCreateRoute: () => void;
+}) {
   const [open, setOpen] = useState(false);
 
   function run(action: () => void) {
@@ -26,54 +29,48 @@ export function MapCreateDialog() {
   return (
     <DrawFieldButton>
       {(drawField, drawingField) => (
-        <DrawRouteButton>
-          {(drawRoute, drawingRoute) => (
-            <DrawLocationButton>
-              {(drawLocation, drawingLocation) => (
-                <Dialog open={open} onOpenChange={setOpen}>
-                  <DialogTrigger
-                    render={
-                      <Button
-                        variant="secondary"
-                        size="icon"
-                        aria-label="Neues Element erstellen"
-                        className={
-                          drawingField || drawingRoute || drawingLocation
-                            ? "hidden"
-                            : "size-11 shadow-card"
-                        }
-                        disabled={
-                          drawingField || drawingRoute || drawingLocation
-                        }
-                      />
+        <DrawLocationButton>
+          {(drawLocation, drawingLocation) => (
+            <Dialog open={open} onOpenChange={setOpen}>
+              <DialogTrigger
+                render={
+                  <Button
+                    variant="secondary"
+                    size="icon"
+                    aria-label="Neues Element erstellen"
+                    className={
+                      drawingField || drawingLocation
+                        ? "hidden"
+                        : "size-11 shadow-card"
                     }
-                  >
-                    <PlusIcon className="size-5" />
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Neues Element erstellen</DialogTitle>
-                      <DialogDescription>
-                        Was möchtest du auf der Karte hinzufügen?
-                      </DialogDescription>
-                    </DialogHeader>
-                    <div className="flex flex-col gap-2">
-                      <DialogActionButton onClick={() => run(drawRoute)}>
-                        <RouteIcon /> Route zeichnen
-                      </DialogActionButton>
-                      <DialogActionButton onClick={() => run(drawField)}>
-                        <LandPlotIcon /> Feld zeichnen
-                      </DialogActionButton>
-                      <DialogActionButton onClick={() => run(drawLocation)}>
-                        <MapPinIcon /> Standort auf der Karte setzen
-                      </DialogActionButton>
-                    </div>
-                  </DialogContent>
-                </Dialog>
-              )}
-            </DrawLocationButton>
+                    disabled={drawingField || drawingLocation}
+                  />
+                }
+              >
+                <PlusIcon className="size-5" />
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Neues Element erstellen</DialogTitle>
+                  <DialogDescription>
+                    Was möchtest du auf der Karte hinzufügen?
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="flex flex-col gap-2">
+                  <DialogActionButton onClick={() => run(onCreateRoute)}>
+                    <RouteIcon /> Route zeichnen
+                  </DialogActionButton>
+                  <DialogActionButton onClick={() => run(drawField)}>
+                    <LandPlotIcon /> Feld zeichnen
+                  </DialogActionButton>
+                  <DialogActionButton onClick={() => run(drawLocation)}>
+                    <MapPinIcon /> Standort auf der Karte setzen
+                  </DialogActionButton>
+                </div>
+              </DialogContent>
+            </Dialog>
           )}
-        </DrawRouteButton>
+        </DrawLocationButton>
       )}
     </DrawFieldButton>
   );

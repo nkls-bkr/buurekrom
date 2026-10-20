@@ -17,6 +17,7 @@ import { useSearchParams } from "react-router-dom";
 import { RouteEditor } from "@/features/map/components/RouteEditor";
 
 export function MapPage() {
+  const [creatingRoute, setCreatingRoute] = useState(false);
   const [editingDraft, setEditingRoute] = useState<RouteResponse | null>(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const { data: routes } = useRoutes();
@@ -28,6 +29,7 @@ export function MapPage() {
         ) ?? null)
       : null);
   function closeEditor() {
+    setCreatingRoute(false);
     setEditingRoute(null);
     if (searchParams.has("edit")) {
       setSearchParams(
@@ -67,17 +69,17 @@ export function MapPage() {
           maxZoom={28}
           maxNativeZoom={19}
         />
-        {!editingRoute && (
+        {!editingRoute && !creatingRoute && (
           <>
             <FieldsLayer />
             <LocationsLayer />
             <RoutesLayer />
           </>
         )}
-        {editingRoute && (
+        {(editingRoute || creatingRoute) && (
           <RouteEditor
-            key={editingRoute.id}
-            route={editingRoute}
+            key={editingRoute?.id ?? "new"}
+            route={editingRoute ?? undefined}
             onClose={closeEditor}
           />
         )}
@@ -94,14 +96,16 @@ export function MapPage() {
             onError={handleLocationError}
             onRequest={handleLocationRequest}
           />
-          {!editingRoute && (
+          {!editingRoute && !creatingRoute && (
             <div className="map-tools flex flex-col-reverse gap-2">
-              <MapCreateDialog />
+              <MapCreateDialog onCreateRoute={() => setCreatingRoute(true)} />
             </div>
           )}
         </MapControls>
       </MapContainer>
-      {!editingRoute && <SelectionToolbar onEditRoute={setEditingRoute} />}
+      {!editingRoute && !creatingRoute && (
+        <SelectionToolbar onEditRoute={setEditingRoute} />
+      )}
     </div>
   );
 }

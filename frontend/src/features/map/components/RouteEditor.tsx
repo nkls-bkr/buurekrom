@@ -1,13 +1,19 @@
 import { useEffect, useRef, useState } from "react";
-import { Marker, Polyline, useMap } from "react-leaflet";
+import { Marker, Polyline, useMap, useMapEvents } from "react-leaflet";
 import L from "leaflet";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   useUpdateRouteMutation,
+  useCreateRouteMutation,
   type RouteResponse,
 } from "@/features/routes/api";
+import { useRouteVisibility } from "@/features/routes/visibility/visibility";
+import {
+  SelectionKind,
+  useSelection,
+} from "@/features/map/selection/selection";
 
 type Point = [number, number];
 
@@ -65,36 +71,60 @@ export function RouteEditor({
   route,
   onClose,
 }: {
-  route: RouteResponse;
+  route?: RouteResponse;
   onClose: () => void;
 }) {
   const map = useMap();
   const panel = useRef<HTMLDivElement>(null);
-  const [name, setName] = useState(route.name ?? "");
+  const creating = !route;
+  const [name, setName] = useState(route?.name ?? "");
   const [history, setHistory] = useState<Point[][]>(() => [
-    route.geometry.coordinates.map(([lng, lat]) => [lat, lng]),
+    route?.geometry.coordinates.map(([lng, lat]) => [lat, lng]) ?? [],
   ]);
   const [preview, setPreview] = useState<Point[] | null>(null);
   const [selected, setSelected] = useState<number | null>(null);
   const update = useUpdateRouteMutation();
+  const create = useCreateRouteMutation();
+  const isPending = update.isPending || create.isPending;
+  const { isVisible, toggleRoute } = useRouteVisibility();
+  const { select } = useSelection();
   const points = history[history.length - 1];
   const initialPoints = useRef(points);
   const displayed = preview ?? points;
   const valid =
     points.length >= 2 &&
     points.some(([lat, lng]) => lat !== points[0][0] || lng !== points[0][1]);
-  const dirty = name.trim() !== (route.name ?? "") || history.length > 1;
+  const dirty = name.trim() !== (route?.name ?? "") || history.length > 1;
+
+  useMapEvents({
+    click: (event) => {
+      if (!creating || isPending || preview) return;
+      const { lat, lng } = event.latlng.wrap();
+      commit([...points, [lat, lng]]);
+      setSelected(points.length);
+    },
+  });
+
+  useEffect(() => {
+    if (!creating) return;
+    const doubleClickZoom = map.doubleClickZoom.enabled();
+    map.doubleClickZoom.disable();
+    return () => {
+      if (doubleClickZoom) map.doubleClickZoom.enable();
+    };
+  }, [creating, map]);
 
   useEffect(() => {
     if (panel.current) {
       L.DomEvent.disableClickPropagation(panel.current);
       L.DomEvent.disableScrollPropagation(panel.current);
     }
-    map.fitBounds(L.latLngBounds(initialPoints.current), {
-      paddingTopLeft: [50, Math.min(240, map.getSize().y / 2)],
-      paddingBottomRight: [50, 60],
-      maxZoom: 18,
-    });
+    if (initialPoints.current.length)
+      map.fitBounds(L.latLngBounds(initialPoints.current), {
+        paddingTopLeft: [50, Math.min(240, map.getSize().y / 2)],
+        paddingBottomRight: [50, 60],
+        maxZoom: 18,
+      });
   }, [map]);
 
   useEffect(() => {
@@ -115,50 +145,55 @@ export function RouteEditor({
   }
 
   function save() {
-    if (!valid || update.isPending) return;
-    update.mutate(
-      {
-        id: route.id,
-        name: name.trim() || null,
-        geometry: {
-          type: "LineString",
-          coordinates: points.map(([lat, lng]) => [lng, lat]),
-        },
+    if (!valid || isPending) return;
+    const request = {
+      name: name.trim() || null,
+      geometry: {
+        type: "LineString" as const,
+        coordinates: points.map(([lat, lng]) => [lng, lat]),
       },
-      {
-        onSuccess: () => {
-          toast.success("Route gespeichert.");
-          onClose();
-        },
-        onError: () =>
-          toast.error(
-            "Route konnte nicht gespeichert werden. Deine Änderungen bleiben erhalten.",
-          ),
+    };
+    const callbacks = {
+      onSuccess: (saved: RouteResponse) => {
+        if (creating) {
+          if (!isVisible(saved.id)) toggleRoute(saved.id);
+          select(SelectionKind.Route, saved.id);
+        }
+        toast.success("Route gespeichert.");
+        onClose();
       },
-    );
+      onError: () =>
+        toast.error(
+          "Route konnte nicht gespeichert werden. Deine Änderungen bleiben erhalten.",
+        ),
+    };
+    if (route) update.mutate({ id: route.id, ...request }, callbacks);
+    else create.mutate(request, callbacks);
   }
 
   return (
     <>
-      <Polyline
-        positions={displayed}
-        pathOptions={{ color: "#772d0c", weight: 7 }}
-        interactive={false}
-      />
+      {displayed.length >= 2 && (
+        <Polyline
+          positions={displayed}
+          pathOptions={{ color: "#772d0c", weight: 7 }}
+          interactive={false}
+        />
+      )}
       {points.map((point, index) => (
         <RoutePoint
           key={`point-${index}`}
           position={point}
           selected={selected === index}
-          disabled={update.isPending}
+          disabled={isPending}
           index={index}
           eventHandlers={{
             mousedown: () => {
-              if (!update.isPending) setSelected(index);
+              if (!isPending) setSelected(index);
             },
             dragstart: () => setSelected(index),
             click: () => {
-              if (!update.isPending) setSelected(index);
+              if (!isPending) setSelected(index);
             },
             drag: (event) => setPreview(move(index, event.target as L.Marker)),
             dragend: (event) => {
@@ -169,7 +204,7 @@ export function RouteEditor({
         />
       ))}
       {!preview &&
-        !update.isPending &&
+        !isPending &&
         points.slice(1).map((point, index) => {
           const previous = points[index];
           const midpoint: Point = [
@@ -200,24 +235,26 @@ export function RouteEditor({
         className="absolute top-3 left-1/2 z-1000 w-[calc(100%-2rem)] max-w-md -translate-x-1/2 rounded-xl bg-card p-3 shadow-card"
       >
         <label htmlFor="edit-route-name" className="text-label-md">
-          Route bearbeiten · Name
+          {creating ? "Route erstellen" : "Route bearbeiten"} · Name
         </label>
         <Input
           id="edit-route-name"
           value={name}
           maxLength={255}
-          disabled={update.isPending}
+          disabled={isPending}
           onChange={(event) => setName(event.target.value)}
           placeholder="Name (optional)"
         />
         <p className="my-2 text-xs text-muted-foreground">
-          Punkte verschieben, mit + einfügen oder zum Entfernen antippen.
+          {creating
+            ? "Karte antippen, um Punkte anzuhängen. Gesetzte Punkte kannst du jederzeit verschieben, mit + ergänzen oder entfernen."
+            : "Punkte verschieben, mit + einfügen oder zum Entfernen antippen."}
         </p>
         <div className="flex flex-wrap gap-2">
           <Button
             size="sm"
             variant="outline"
-            disabled={history.length < 2 || update.isPending}
+            disabled={history.length < 2 || isPending}
             onClick={() => {
               setHistory((previous) => previous.slice(0, -1));
               setSelected(null);
@@ -230,7 +267,9 @@ export function RouteEditor({
             size="sm"
             variant="outline"
             disabled={
-              selected === null || points.length <= 2 || update.isPending
+              selected === null ||
+              (!creating && points.length <= 2) ||
+              isPending
             }
             onClick={() => {
               commit(points.filter((_, index) => index !== selected));
@@ -242,20 +281,20 @@ export function RouteEditor({
           <Button
             size="sm"
             variant="outline"
-            disabled={update.isPending}
+            disabled={isPending}
             onClick={onClose}
           >
             Abbrechen
           </Button>
           <Button
             size="sm"
-            disabled={!valid || update.isPending || preview !== null}
+            disabled={!valid || isPending || preview !== null}
             onClick={save}
           >
-            {update.isPending ? "Speichern …" : "Speichern"}
+            {isPending ? "Speichern …" : "Speichern"}
           </Button>
         </div>
-        {!valid && (
+        {!valid && (!creating || points.length >= 2) && (
           <p role="alert" className="mt-2 text-sm text-destructive">
             Die Route braucht mindestens zwei unterschiedliche Punkte.
           </p>
