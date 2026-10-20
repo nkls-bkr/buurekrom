@@ -420,7 +420,35 @@ body:has(.login-page) {
   }
 }
 
+.user-location-marker {
+  pointer-events: none;
+}
+
+.user-location-pulse {
+  position: absolute;
+  left: -11px;
+  top: -11px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #4285f4;
+  opacity: 0;
+}
+
+.user-location-dot {
+  position: absolute;
+  inset: 0;
+  box-sizing: border-box;
+  border: 3px solid #ffffff;
+  border-radius: 50%;
+  background: #4285f4;
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .user-location-pulse {
+    display: none;
+  }
+
   .animate-position-pulse,
   .animate-spin {
     animation: none;

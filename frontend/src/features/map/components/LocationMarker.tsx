@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from "react";
-import { CircleMarker, Marker, Pane } from "react-leaflet";
+import { Marker, Pane } from "react-leaflet";
 import L, { type LatLngLiteral } from "leaflet";
 import { toast } from "sonner";
 import { describeGeolocationError } from "@/features/map/geolocation";
@@ -36,13 +36,13 @@ export function LocationMarker({ position, onPosition, onError }: Props) {
     return () => navigator.geolocation.clearWatch(id);
   }, [onPosition, onError]);
 
-  const pulseIcon = useMemo(
+  const locationIcon = useMemo(
     () =>
       L.divIcon({
-        className: "pointer-events-none",
-        html: '<span class="block size-10 -mt-5 -ml-5 rounded-full bg-[#4285F4] animate-position-pulse will-change-transform"></span>',
-        iconSize: [0, 0],
-        iconAnchor: [0, 0],
+        className: "user-location-marker",
+        html: '<span class="user-location-pulse animate-position-pulse"></span><span class="user-location-dot"></span>',
+        iconSize: [18, 18],
+        iconAnchor: [9, 9],
       }),
     [],
   );
@@ -57,32 +57,9 @@ export function LocationMarker({ position, onPosition, onError }: Props) {
       <Marker
         position={position}
         pane={USER_LOCATION_PANE}
-        icon={pulseIcon}
+        icon={locationIcon}
         interactive={false}
-      />
-      <CircleMarker
-        center={position}
-        radius={9}
-        pane={USER_LOCATION_PANE}
-        pathOptions={{
-          color: "#ffffff",
-          fillColor: "#ffffff",
-          fillOpacity: 1,
-          weight: 3,
-        }}
-        interactive={false}
-      />
-      <CircleMarker
-        center={position}
-        radius={6}
-        pane={USER_LOCATION_PANE}
-        pathOptions={{
-          color: "#4285F4",
-          fillColor: "#4285F4",
-          fillOpacity: 1,
-          weight: 0,
-        }}
-        interactive={false}
+        keyboard={false}
       />
     </Pane>
   );
