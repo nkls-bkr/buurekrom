@@ -11,18 +11,55 @@ import {
 
 type Point = [number, number];
 
-function handleIcon(selected: boolean, midpoint = false) {
+function handleIcon(midpoint = false) {
   return L.divIcon({
     className: "route-edit-handle",
-    html: `<span style="display:grid;place-items:center;width:28px;height:28px;margin:8px;border:3px solid white;border-radius:50%;background:${selected ? "#772d0c" : midpoint ? "#4d6450" : "#17341d"};color:white;box-shadow:0 1px 5px #0005;font:20px sans-serif">${midpoint ? "+" : ""}</span>`,
+    html: `<span style="display:grid;place-items:center;width:28px;height:28px;margin:8px;border:3px solid white;border-radius:50%;background:${midpoint ? "#4d6450" : "var(--route-point-color, #17341d)"};color:white;box-shadow:0 1px 5px #0005;font:20px sans-serif">${midpoint ? "+" : ""}</span>`,
     iconSize: [44, 44],
     iconAnchor: [22, 22],
   });
 }
 
 const pointIcon = handleIcon(false);
-const selectedIcon = handleIcon(true);
-const midpointIcon = handleIcon(false, true);
+const midpointIcon = handleIcon(true);
+
+function RoutePoint({
+  position,
+  selected,
+  disabled,
+  index,
+  eventHandlers,
+}: {
+  position: Point;
+  selected: boolean;
+  disabled: boolean;
+  index: number;
+  eventHandlers: L.LeafletEventHandlerFnMap;
+}) {
+  const marker = useRef<L.Marker>(null);
+
+  useEffect(() => {
+    // Replacing the icon also rebuilds Leaflet's drag handler.
+    const element = marker.current?.getElement();
+    element?.style.setProperty(
+      "--route-point-color",
+      selected ? "#772d0c" : "#17341d",
+    );
+    element?.setAttribute("aria-pressed", String(selected));
+  }, [selected]);
+
+  return (
+    <Marker
+      ref={marker}
+      position={position}
+      icon={pointIcon}
+      draggable={!disabled}
+      title={`Punkt ${index + 1} auswählen oder verschieben`}
+      zIndexOffset={1000}
+      eventHandlers={eventHandlers}
+    />
+  );
+}
 
 export function RouteEditor({
   route,
@@ -109,14 +146,17 @@ export function RouteEditor({
         interactive={false}
       />
       {points.map((point, index) => (
-        <Marker
+        <RoutePoint
           key={`point-${index}`}
           position={point}
-          icon={selected === index ? selectedIcon : pointIcon}
-          draggable={!update.isPending}
-          title={`Punkt ${index + 1} auswählen oder verschieben`}
-          zIndexOffset={1000}
+          selected={selected === index}
+          disabled={update.isPending}
+          index={index}
           eventHandlers={{
+            mousedown: () => {
+              if (!update.isPending) setSelected(index);
+            },
+            dragstart: () => setSelected(index),
             click: () => {
               if (!update.isPending) setSelected(index);
             },
