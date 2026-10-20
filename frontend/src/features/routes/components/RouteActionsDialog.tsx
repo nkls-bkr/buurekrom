@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { DialogActionButton } from "@/components/ui/dialog-action-button";
 import {
   Dialog,
   DialogContent,
@@ -116,40 +117,27 @@ export function RouteActionsDialog({
           </div>
         ) : (
           <div className="flex flex-col gap-2">
-            <Button
-              variant="ghost"
-              className="justify-start"
-              onClick={() => run(onEdit)}
-            >
+            <DialogActionButton onClick={() => run(onEdit)}>
               <PencilIcon /> Route bearbeiten
-            </Button>
+            </DialogActionButton>
             <ShareRouteButton routeId={route.id} showLabel />
             {onShowOnMap && (
-              <Button
-                variant="ghost"
-                className="justify-start"
-                onClick={() => run(onShowOnMap)}
-              >
+              <DialogActionButton onClick={() => run(onShowOnMap)}>
                 <MapIcon /> Auf Karte zeigen
-              </Button>
+              </DialogActionButton>
             )}
             {onToggleVisibility && (
-              <Button
-                variant="ghost"
-                className="justify-start"
-                onClick={() => run(onToggleVisibility)}
-              >
+              <DialogActionButton onClick={() => run(onToggleVisibility)}>
                 <EyeIcon />{" "}
                 {visible ? "Auf Karte ausblenden" : "Auf Karte einblenden"}
-              </Button>
+              </DialogActionButton>
             )}
-            <Button
-              variant="ghost"
-              className="justify-start text-destructive"
+            <DialogActionButton
+              className="text-destructive hover:text-destructive"
               onClick={() => setConfirmDelete(true)}
             >
               <Trash2Icon /> Route löschen
-            </Button>
+            </DialogActionButton>
           </div>
         )}
       </DialogContent>

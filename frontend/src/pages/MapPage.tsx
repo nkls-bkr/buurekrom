@@ -3,7 +3,6 @@ import { FocusRoute } from "@/features/map/components/FocusRoute";
 import { MapControls } from "@/features/map/components/MapControls";
 import { AttributionControl, MapContainer, TileLayer } from "react-leaflet";
 import { MapCreateDialog } from "@/features/map/components/MapCreateDialog";
-import { DeleteSelectionButton } from "@/features/map/components/DeleteSelectionButton";
 import { LocateButton } from "@/features/map/components/LocateButton";
 import { FieldsLayer } from "@/features/map/components/FieldsLayer";
 import { LocationMarker } from "@/features/map/components/LocationMarker";
@@ -97,7 +96,6 @@ export function MapPage() {
           />
           {!editingRoute && (
             <div className="map-tools flex flex-col-reverse gap-2">
-              <DeleteSelectionButton />
               <MapCreateDialog />
             </div>
           )}

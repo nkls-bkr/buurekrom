@@ -2,6 +2,7 @@ import { useState } from "react";
 import { CheckIcon, CopyIcon, Share2Icon } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { DialogActionButton } from "@/components/ui/dialog-action-button";
 import {
   Dialog,
   DialogContent,
@@ -19,6 +20,7 @@ export function ShareRouteButton({
   routeId: number;
   showLabel?: boolean;
 }) {
+  const TriggerButton = showLabel ? DialogActionButton : Button;
   const shareMutation = useShareRouteMutation();
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -60,16 +62,15 @@ export function ShareRouteButton({
 
   return (
     <>
-      <Button
-        variant="ghost"
+      <TriggerButton
+        variant={showLabel ? "outline" : "ghost"}
         size={showLabel ? "default" : "icon-sm"}
-        className={showLabel ? "justify-start" : undefined}
         onClick={openDialog}
         aria-label="Route teilen"
       >
         <Share2Icon className="size-4" />
         {showLabel && "Route teilen"}
-      </Button>
+      </TriggerButton>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader>

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { LandPlotIcon, MapPinIcon, RouteIcon, PlusIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { DialogActionButton } from "@/components/ui/dialog-action-button";
 import {
   Dialog,
   DialogContent,
@@ -57,27 +58,15 @@ export function MapCreateDialog() {
                       </DialogDescription>
                     </DialogHeader>
                     <div className="flex flex-col gap-2">
-                      <Button
-                        variant="outline"
-                        className="h-auto min-h-12 justify-start gap-3 whitespace-normal px-4 py-3 text-left"
-                        onClick={() => run(drawRoute)}
-                      >
+                      <DialogActionButton onClick={() => run(drawRoute)}>
                         <RouteIcon /> Route zeichnen
-                      </Button>
-                      <Button
-                        variant="outline"
-                        className="h-auto min-h-12 justify-start gap-3 whitespace-normal px-4 py-3 text-left"
-                        onClick={() => run(drawField)}
-                      >
+                      </DialogActionButton>
+                      <DialogActionButton onClick={() => run(drawField)}>
                         <LandPlotIcon /> Feld zeichnen
-                      </Button>
-                      <Button
-                        variant="outline"
-                        className="h-auto min-h-12 justify-start gap-3 whitespace-normal px-4 py-3 text-left"
-                        onClick={() => run(drawLocation)}
-                      >
+                      </DialogActionButton>
+                      <DialogActionButton onClick={() => run(drawLocation)}>
                         <MapPinIcon /> Standort auf der Karte setzen
-                      </Button>
+                      </DialogActionButton>
                     </div>
                   </DialogContent>
                 </Dialog>

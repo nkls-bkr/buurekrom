@@ -5,6 +5,7 @@ import { useFields } from "@/features/fields/api";
 import { useLocations } from "@/features/location/api";
 import { useRoutes, type RouteResponse } from "@/features/routes/api";
 import { RouteActionsDialog } from "@/features/routes/components/RouteActionsDialog";
+import { PlaceActionsDialog } from "@/features/map/components/PlaceActionsDialog";
 import {
   SelectionKind,
   useSelection,
@@ -53,6 +54,14 @@ export function SelectionToolbar({
           key={selectedRoute.id}
           route={selectedRoute}
           onEdit={() => onEditRoute(selectedRoute)}
+        />
+      )}
+      {selection.kind !== SelectionKind.Route && (
+        <PlaceActionsDialog
+          key={`${selection.kind}-${selection.id}`}
+          kind={selection.kind}
+          id={selection.id}
+          name={name}
         />
       )}
       <Button
