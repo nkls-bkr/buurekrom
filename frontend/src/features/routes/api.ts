@@ -85,6 +85,18 @@ export function useDeleteRouteMutation() {
   });
 }
 
+export function useUpdateRouteMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, ...request }: CreateRouteRequest & { id: number }) =>
+      apiFetch<RouteResponse>(`/routes/${id}`, {
+        method: "PUT",
+        body: JSON.stringify(request),
+      }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: routesKey }),
+  });
+}
+
 export function useShareRouteMutation() {
   return useMutation({
     mutationFn: (routeId: number) => shareRoute(routeId),

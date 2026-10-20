@@ -1,7 +1,7 @@
-import { Link, useSearchParams } from "react-router-dom";
-import { MapIcon, RouteIcon, SearchIcon } from "lucide-react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { RouteIcon, SearchIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+import { RouteActionsDialog } from "@/features/routes/components/RouteActionsDialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useRoutes } from "@/features/routes/api";
@@ -12,6 +12,7 @@ import {
 } from "@/features/map/selection/selection";
 
 export function RoutesPage() {
+  const navigate = useNavigate();
   const { data: routes = [], isPending, isError, refetch } = useRoutes();
   const { isVisible, toggleRoute, showAll, hideAll } = useRouteVisibility();
   const { selection, clear } = useSelection();
@@ -179,13 +180,11 @@ export function RoutesPage() {
             ) : (
               <ul className="divide-y overflow-hidden rounded-xl border bg-card">
                 {filteredRoutes.map((route) => (
-                  <li key={route.id} className="flex flex-wrap items-center gap-x-4 px-4 py-3 hover:bg-muted/50">
-                    <label className="flex min-h-10 min-w-0 flex-1 cursor-pointer items-center gap-3">
-                      <Checkbox
-                        checked={isVisible(route.id)}
-                        onCheckedChange={() => toggleVisibility(route.id)}
-                        aria-label={`${route.name || `Route #${route.id}`} auf der Karte anzeigen`}
-                      />
+                  <li
+                    key={route.id}
+                    className="flex flex-wrap items-center gap-x-4 px-4 py-3 hover:bg-muted/50"
+                  >
+                    <div className="flex min-h-10 min-w-0 flex-1 items-center gap-3">
                       <span className="min-w-0 flex-1">
                         <span className="block break-words font-medium">
                           {route.name || `Route #${route.id}`}
@@ -197,16 +196,14 @@ export function RoutesPage() {
                             : "Ausgeblendet"}
                         </span>
                       </span>
-                    </label>
-                    <Button
-                      render={<Link to={`/?route=${route.id}`} />}
-                      nativeButton={false}
-                      variant="outline"
-                      size="sm"
-                      aria-label={`${route.name || `Route #${route.id}`} auf Karte zeigen`}
-                    >
-                      <MapIcon /> Auf Karte zeigen
-                    </Button>
+                    </div>
+                    <RouteActionsDialog
+                      route={route}
+                      onEdit={() => navigate(`/?route=${route.id}&edit=1`)}
+                      onShowOnMap={() => navigate(`/?route=${route.id}`)}
+                      onToggleVisibility={() => toggleVisibility(route.id)}
+                      visible={isVisible(route.id)}
+                    />
                   </li>
                 ))}
               </ul>

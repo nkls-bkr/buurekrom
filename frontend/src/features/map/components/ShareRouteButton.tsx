@@ -12,7 +12,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { useShareRouteMutation } from "@/features/routes/api";
 
-export function ShareRouteButton({ routeId }: { routeId: number }) {
+export function ShareRouteButton({
+  routeId,
+  showLabel = false,
+}: {
+  routeId: number;
+  showLabel?: boolean;
+}) {
   const shareMutation = useShareRouteMutation();
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -56,11 +62,13 @@ export function ShareRouteButton({ routeId }: { routeId: number }) {
     <>
       <Button
         variant="ghost"
-        size="icon-sm"
+        size={showLabel ? "default" : "icon-sm"}
+        className={showLabel ? "justify-start" : undefined}
         onClick={openDialog}
         aria-label="Route teilen"
       >
         <Share2Icon className="size-4" />
+        {showLabel && "Route teilen"}
       </Button>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>

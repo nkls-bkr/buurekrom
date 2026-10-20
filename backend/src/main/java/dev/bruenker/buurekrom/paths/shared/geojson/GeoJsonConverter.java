@@ -68,7 +68,21 @@ public class GeoJsonConverter {
             throw new InvalidGeoJsonException("LineString must have at least 2 points");
         }
 
-        return geometryFactory.createLineString(toCoordinates(geoJson.coordinates()));
+        final Coordinate[] coordinates = toCoordinates(geoJson.coordinates());
+        boolean hasDistinctPoint = false;
+        for (final Coordinate coordinate : coordinates) {
+            if (!Double.isFinite(coordinate.x) || !Double.isFinite(coordinate.y)
+                    || Math.abs(coordinate.x) > 180 || Math.abs(coordinate.y) > 90) {
+                throw new InvalidGeoJsonException("Coordinates must be finite WGS84 longitude/latitude values");
+            }
+            if (!coordinate.equals2D(coordinates[0])) {
+                hasDistinctPoint = true;
+            }
+        }
+        if (!hasDistinctPoint) {
+            throw new InvalidGeoJsonException("LineString must have at least 2 distinct points");
+        }
+        return geometryFactory.createLineString(coordinates);
     }
 
     @Nonnull

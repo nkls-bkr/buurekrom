@@ -1,11 +1,10 @@
 import { LandPlotIcon, MapPinIcon, RouteIcon, XIcon } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import { useFields } from "@/features/fields/api";
 import { useLocations } from "@/features/location/api";
-import { useRoutes } from "@/features/routes/api";
-import { ShareRouteButton } from "@/features/map/components/ShareRouteButton";
+import { useRoutes, type RouteResponse } from "@/features/routes/api";
+import { RouteActionsDialog } from "@/features/routes/components/RouteActionsDialog";
 import {
   SelectionKind,
   useSelection,
@@ -23,7 +22,11 @@ const FALLBACK_NAMES: Record<SelectionKind, string> = {
   [SelectionKind.Route]: "Route",
 };
 
-export function SelectionToolbar() {
+export function SelectionToolbar({
+  onEditRoute,
+}: {
+  onEditRoute: (route: RouteResponse) => void;
+}) {
   const { selection, clear } = useSelection();
   const { data: fields } = useFields();
   const { data: locations } = useLocations();
@@ -36,16 +39,21 @@ export function SelectionToolbar() {
 
   const Icon = ICONS[selection.kind];
   const label = name ?? FALLBACK_NAMES[selection.kind];
+  const selectedRoute =
+    selection.kind === SelectionKind.Route
+      ? routes?.find((route) => route.id === selection.id)
+      : undefined;
 
   return (
     <div className="absolute top-4 left-1/2 z-1000 flex max-w-[calc(100%-2rem)] -translate-x-1/2 items-center gap-2 rounded-full bg-card px-3 py-1.5 shadow-card">
       <Icon className="size-4 text-muted-foreground/60" />
       <span className="min-w-0 truncate text-label-md">{label}</span>
-      {selection.kind === SelectionKind.Route && (
-        <>
-          <ShareRouteButton key={selection.id} routeId={selection.id} />
-          <Separator orientation="vertical" className="my-1" />
-        </>
+      {selectedRoute && (
+        <RouteActionsDialog
+          key={selectedRoute.id}
+          route={selectedRoute}
+          onEdit={() => onEditRoute(selectedRoute)}
+        />
       )}
       <Button
         variant="ghost"

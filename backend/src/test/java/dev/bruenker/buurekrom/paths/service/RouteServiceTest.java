@@ -48,6 +48,35 @@ class RouteServiceTest {
     }
 
     @Nested
+    class Update {
+        @Test
+        void shouldPreserveIdentityAndShareToken() {
+            final Route route = new Route(42L, "Alt", geometry, null, "existing-token");
+            final LineString changed = GEOMETRY_FACTORY.createLineString(new Coordinate[]{
+                    new Coordinate(11, 51), new Coordinate(12, 52)
+            });
+            when(routeRepository.findById(42L)).thenReturn(Optional.of(route));
+            when(routeRepository.save(any(Route.class))).thenAnswer(inv -> inv.getArgument(0));
+
+            final Route result = routeService.update(42L, "Neu", changed);
+
+            assertThat(result.getId()).isEqualTo(42L);
+            assertThat(result.getName()).isEqualTo("Neu");
+            assertThat(result.getGeometry()).isSameAs(changed);
+            assertThat(result.getShareToken()).isEqualTo("existing-token");
+            verify(routeRepository).save(route);
+        }
+
+        @Test
+        void shouldRejectMissingRouteWithoutSaving() {
+            when(routeRepository.findById(99L)).thenReturn(Optional.empty());
+            assertThatThrownBy(() -> routeService.update(99L, null, geometry))
+                    .isInstanceOf(RouteNotFoundException.class);
+            verify(routeRepository, never()).save(any(Route.class));
+        }
+    }
+
+    @Nested
     class GetOrCreateShareToken {
 
         @Test

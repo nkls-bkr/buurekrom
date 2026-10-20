@@ -73,6 +73,8 @@ export function DeleteSelectionButton() {
     }
   }
 
+  if (selection?.kind === SelectionKind.Route) return null;
+
   return (
     <>
       <Button

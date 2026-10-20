@@ -43,6 +43,21 @@ public class RouteService {
         return routeRepository.save(route);
     }
 
+    @Nonnull
+    public Route update(
+            @Nonnull final Long routeId,
+            @Nullable final String name,
+            @Nonnull final LineString geometry
+    ) {
+        requireNonNull(routeId, "routeId");
+        requireNonNull(geometry, "geometry");
+        final Route route = routeRepository.findById(routeId)
+                .orElseThrow(() -> new RouteNotFoundException(routeId));
+        route.setName(name);
+        route.setGeometry(geometry);
+        return routeRepository.save(route);
+    }
+
     public void delete(@Nonnull final Long routeId) {
         requireNonNull(routeId, "routeId");
 

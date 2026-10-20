@@ -12,8 +12,35 @@ import { SelectionToolbar } from "@/features/map/components/SelectionToolbar";
 import { CENTER_OF_GERMANY } from "@/constants.ts";
 import { LocationsLayer } from "@/features/map/components/LocationsLayer.tsx";
 import { useOwnPosition } from "@/features/map/useOwnPosition";
+import { useState } from "react";
+import { useRoutes, type RouteResponse } from "@/features/routes/api";
+import { useSearchParams } from "react-router-dom";
+import { RouteEditor } from "@/features/map/components/RouteEditor";
 
 export function MapPage() {
+  const [editingDraft, setEditingRoute] = useState<RouteResponse | null>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { data: routes } = useRoutes();
+  const editingRoute =
+    editingDraft ??
+    (searchParams.get("edit") === "1"
+      ? (routes?.find(
+          (route) => route.id === Number(searchParams.get("route")),
+        ) ?? null)
+      : null);
+  function closeEditor() {
+    setEditingRoute(null);
+    if (searchParams.has("edit")) {
+      setSearchParams(
+        (previous) => {
+          const next = new URLSearchParams(previous);
+          next.delete("edit");
+          return next;
+        },
+        { replace: true },
+      );
+    }
+  }
   const {
     position,
     locationFailed,
@@ -41,9 +68,20 @@ export function MapPage() {
           maxZoom={28}
           maxNativeZoom={19}
         />
-        <FieldsLayer />
-        <LocationsLayer></LocationsLayer>
-        <RoutesLayer />
+        {!editingRoute && (
+          <>
+            <FieldsLayer />
+            <LocationsLayer />
+            <RoutesLayer />
+          </>
+        )}
+        {editingRoute && (
+          <RouteEditor
+            key={editingRoute.id}
+            route={editingRoute}
+            onClose={closeEditor}
+          />
+        )}
         <LocationMarker
           position={position}
           onPosition={handlePosition}
@@ -57,13 +95,15 @@ export function MapPage() {
             onError={handleLocationError}
             onRequest={handleLocationRequest}
           />
-          <div className="map-tools flex flex-col-reverse gap-2">
-            <DeleteSelectionButton />
-            <MapCreateDialog />
-          </div>
+          {!editingRoute && (
+            <div className="map-tools flex flex-col-reverse gap-2">
+              <DeleteSelectionButton />
+              <MapCreateDialog />
+            </div>
+          )}
         </MapControls>
       </MapContainer>
-      <SelectionToolbar />
+      {!editingRoute && <SelectionToolbar onEditRoute={setEditingRoute} />}
     </div>
   );
 }

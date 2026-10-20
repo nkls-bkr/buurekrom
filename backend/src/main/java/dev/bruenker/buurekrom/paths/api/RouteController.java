@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -58,6 +59,19 @@ public class RouteController {
                 geoJsonConverter.toLineString(request.geometry())
         );
         return RouteResponse.from(route, geoJsonConverter);
+    }
+
+    @PutMapping("/{routeId}")
+    @Nonnull
+    public RouteResponse update(
+            @PathVariable @Nonnull final Long routeId,
+            @RequestBody @Nonnull final RouteRequest request
+    ) {
+        requireNonNull(routeId, "routeId");
+        requireNonNull(request, "request");
+        return RouteResponse.from(routeService.update(
+                routeId, request.name(), geoJsonConverter.toLineString(request.geometry())
+        ), geoJsonConverter);
     }
 
     @DeleteMapping("/{routeId}")
