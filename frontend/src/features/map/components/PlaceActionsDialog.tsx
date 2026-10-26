@@ -93,7 +93,7 @@ export function PlaceActionsDialog({
           />
         }
       >
-        <EllipsisIcon className="size-5" />
+        <EllipsisIcon />
       </DialogTrigger>
       <DialogContent showCloseButton={!isPending}>
         <DialogHeader>

@@ -1,8 +1,17 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { Marker, Polyline, useMap, useMapEvents } from "react-leaflet";
 import L from "leaflet";
 import { toast } from "sonner";
+import {
+  ChevronDownIcon,
+  ChevronUpIcon,
+  SaveIcon,
+  Trash2Icon,
+  Undo2Icon,
+  XIcon,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { DialogActionButton } from "@/components/ui/dialog-action-button";
 import { Input } from "@/components/ui/input";
 import {
   useUpdateRouteMutation,
@@ -76,6 +85,8 @@ export function RouteEditor({
 }) {
   const map = useMap();
   const panel = useRef<HTMLDivElement>(null);
+  const panelContentId = useId();
+  const [collapsed, setCollapsed] = useState(false);
   const creating = !route;
   const [name, setName] = useState(route?.name ?? "");
   const [history, setHistory] = useState<Point[][]>(() => [
@@ -232,73 +243,96 @@ export function RouteEditor({
         })}
       <div
         ref={panel}
-        className="absolute top-3 left-1/2 z-1000 w-[calc(100%-2rem)] max-w-md -translate-x-1/2 rounded-xl bg-card p-3 shadow-card"
+        className="absolute top-3 left-1/2 z-1000 w-[calc(100%-2rem)] max-w-md -translate-x-1/2 rounded-xl bg-card p-2 font-sans text-card-foreground shadow-card"
       >
-        <label htmlFor="edit-route-name" className="text-label-md">
-          {creating ? "Route erstellen" : "Route bearbeiten"} · Name
-        </label>
-        <Input
-          id="edit-route-name"
-          value={name}
-          maxLength={255}
-          disabled={isPending}
-          onChange={(event) => setName(event.target.value)}
-          placeholder="Name (optional)"
-        />
-        <p className="my-2 text-xs text-muted-foreground">
-          {creating
-            ? "Karte antippen, um Punkte anzuhängen. Gesetzte Punkte kannst du jederzeit verschieben, mit + ergänzen oder entfernen."
-            : "Punkte verschieben, mit + einfügen oder zum Entfernen antippen."}
-        </p>
-        <div className="flex flex-wrap gap-2">
-          <Button
-            size="sm"
-            variant="outline"
-            disabled={history.length < 2 || isPending}
-            onClick={() => {
-              setHistory((previous) => previous.slice(0, -1));
-              setSelected(null);
-              setPreview(null);
-            }}
-          >
-            Rückgängig
-          </Button>
-          <Button
-            size="sm"
-            variant="outline"
-            disabled={
-              selected === null ||
-              (!creating && points.length <= 2) ||
-              isPending
-            }
-            onClick={() => {
-              commit(points.filter((_, index) => index !== selected));
-              setSelected(null);
-            }}
-          >
-            Punkt entfernen
-          </Button>
-          <Button
-            size="sm"
-            variant="outline"
+        <Button
+          variant="ghost"
+          className="min-h-11 w-full justify-between gap-2"
+          aria-expanded={!collapsed}
+          aria-controls={panelContentId}
+          aria-label={`${creating ? "Route erstellen" : "Route bearbeiten"} – Menü ${collapsed ? "ausklappen" : "einklappen"}`}
+          onClick={() => setCollapsed((previous) => !previous)}
+        >
+          <span>{creating ? "Route erstellen" : "Route bearbeiten"}</span>
+          {collapsed ? (
+            <ChevronDownIcon data-icon="inline-end" />
+          ) : (
+            <ChevronUpIcon data-icon="inline-end" />
+          )}
+        </Button>
+        <div
+          id={panelContentId}
+          hidden={collapsed}
+          className="max-h-[60dvh] overflow-y-auto overscroll-contain p-1"
+        >
+          <label htmlFor="edit-route-name" className="text-label-md">
+            Name
+          </label>
+          <Input
+            id="edit-route-name"
+            value={name}
+            maxLength={255}
             disabled={isPending}
-            onClick={onClose}
-          >
-            Abbrechen
-          </Button>
-          <Button
-            size="sm"
-            disabled={!valid || isPending || preview !== null}
-            onClick={save}
-          >
-            {isPending ? "Speichern …" : "Speichern"}
-          </Button>
-        </div>
-        {!valid && (!creating || points.length >= 2) && (
-          <p role="alert" className="mt-2 text-sm text-destructive">
-            Die Route braucht mindestens zwei unterschiedliche Punkte.
+            onChange={(event) => setName(event.target.value)}
+            placeholder="Name (optional)"
+          />
+          <p className="my-2 text-xs text-muted-foreground">
+            {creating
+              ? "Karte antippen, um Punkte anzuhängen. Gesetzte Punkte kannst du jederzeit verschieben, mit + ergänzen oder entfernen."
+              : "Punkte verschieben, mit + einfügen oder zum Entfernen antippen."}
           </p>
-        )}
+          <div className="grid grid-cols-1 gap-2 min-[400px]:grid-cols-2">
+            <DialogActionButton
+              className="min-w-0"
+              disabled={history.length < 2 || isPending}
+              onClick={() => {
+                setHistory((previous) => previous.slice(0, -1));
+                setSelected(null);
+                setPreview(null);
+              }}
+            >
+              <Undo2Icon data-icon="inline-start" />
+              <span>Rückgängig</span>
+            </DialogActionButton>
+            <DialogActionButton
+              className="min-w-0"
+              disabled={
+                selected === null ||
+                (!creating && points.length <= 2) ||
+                isPending
+              }
+              onClick={() => {
+                commit(points.filter((_, index) => index !== selected));
+                setSelected(null);
+              }}
+            >
+              <Trash2Icon data-icon="inline-start" />
+              <span>Punkt entfernen</span>
+            </DialogActionButton>
+            <DialogActionButton
+              className="min-w-0"
+              disabled={isPending}
+              onClick={onClose}
+            >
+              <XIcon data-icon="inline-start" />
+              <span>Abbrechen</span>
+            </DialogActionButton>
+            <DialogActionButton
+              className="min-w-0"
+              variant="default"
+              disabled={!valid || isPending || preview !== null}
+              onClick={save}
+            >
+              <SaveIcon data-icon="inline-start" />
+              <span>{isPending ? "Speichern …" : "Speichern"}</span>
+            </DialogActionButton>
+          </div>
+          {!valid && (!creating || points.length >= 2) && (
+            <p role="alert" className="mt-2 text-sm text-destructive">
+              Die Route braucht mindestens zwei unterschiedliche Punkte.
+            </p>
+          )}
+        </div>
       </div>
     </>
   );

@@ -83,7 +83,7 @@ export function RouteActionsDialog({
           />
         }
       >
-        <EllipsisIcon className="size-5" />
+        <EllipsisIcon />
       </DialogTrigger>
       <DialogContent showCloseButton={!remove.isPending}>
         <DialogHeader>

@@ -66,11 +66,11 @@ export function SelectionToolbar({
       )}
       <Button
         variant="ghost"
-        size="icon-sm"
+        size="icon"
         onClick={clear}
         aria-label="Auswahl aufheben"
       >
-        <XIcon className="size-4" />
+        <XIcon />
       </Button>
     </div>
   );
