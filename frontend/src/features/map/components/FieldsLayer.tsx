@@ -11,7 +11,11 @@ export function FieldsLayer() {
   const { isSelected, toggle } = useSelection();
 
   return (
-    <Pane name={FIELDS_PANE} style={{ zIndex: Z_INDEX_FIELDS_PANE }}>
+    <Pane
+      name={FIELDS_PANE}
+      pane="rotatePane"
+      style={{ zIndex: Z_INDEX_FIELDS_PANE }}
+    >
       {fields?.map((field) => {
         const selected = isSelected(SelectionKind.Field, field.id);
         return (

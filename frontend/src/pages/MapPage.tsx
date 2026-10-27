@@ -15,6 +15,8 @@ import { useState } from "react";
 import { useRoutes, type RouteResponse } from "@/features/routes/api";
 import { useSearchParams } from "react-router-dom";
 import { RouteEditor } from "@/features/map/components/RouteEditor";
+import { MapNavigationControls } from "@/features/map/components/MapNavigationControls";
+import { ROTATABLE_MAP_OPTIONS } from "@/features/map/rotation";
 
 export function MapPage() {
   const [creatingRoute, setCreatingRoute] = useState(false);
@@ -53,6 +55,7 @@ export function MapPage() {
   return (
     <div className="relative h-full w-full">
       <MapContainer
+        {...ROTATABLE_MAP_OPTIONS}
         center={CENTER_OF_GERMANY}
         zoom={6}
         maxZoom={28}
@@ -89,6 +92,11 @@ export function MapPage() {
           onError={handleLocationError}
         />
         <MapControls>
+          <MapNavigationControls
+            position={position}
+            locationFailed={locationFailed}
+            editing={!!editingRoute || creatingRoute}
+          />
           <LocateButton
             position={position}
             failed={locationFailed}

@@ -8,6 +8,8 @@ import { LocateButton } from "@/features/map/components/LocateButton";
 import { LocationMarker } from "@/features/map/components/LocationMarker";
 import { useOwnPosition } from "@/features/map/useOwnPosition";
 import type { SharedRouteResponse } from "@/features/routes/api";
+import { MapNavigationControls } from "@/features/map/components/MapNavigationControls";
+import { ROTATABLE_MAP_OPTIONS } from "@/features/map/rotation";
 
 export function SharedRouteMap({ route }: { route: SharedRouteResponse }) {
   const {
@@ -20,6 +22,7 @@ export function SharedRouteMap({ route }: { route: SharedRouteResponse }) {
 
   return (
     <MapContainer
+      {...ROTATABLE_MAP_OPTIONS}
       center={CENTER_OF_GERMANY}
       zoom={6}
       maxZoom={28}
@@ -43,6 +46,10 @@ export function SharedRouteMap({ route }: { route: SharedRouteResponse }) {
         onError={handleLocationError}
       />
       <MapControls>
+        <MapNavigationControls
+          position={position}
+          locationFailed={locationFailed}
+        />
         <LocateButton
           position={position}
           failed={locationFailed}

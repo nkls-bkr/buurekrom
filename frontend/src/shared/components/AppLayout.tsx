@@ -104,7 +104,7 @@ function AppLayoutContent() {
             </SidebarMenuItem>
           </SidebarMenu>
           <span className="px-2 text-right text-[0.625rem] font-medium text-outline-variant">
-            v0.0.10
+            v0.0.15
           </span>
         </SidebarFooter>
       </Sidebar>

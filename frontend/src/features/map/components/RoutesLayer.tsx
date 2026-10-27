@@ -17,7 +17,11 @@ export function RoutesLayer() {
   const visibleRoutes = routes.filter((route) => isVisible(route.id));
 
   return (
-    <Pane name={ROUTES_PANE} style={{ zIndex: Z_INDEX_ROUTES_PANE }}>
+    <Pane
+      name={ROUTES_PANE}
+      pane="rotatePane"
+      style={{ zIndex: Z_INDEX_ROUTES_PANE }}
+    >
       {visibleRoutes.map((route) => {
         const positions = route.geometry.coordinates.map<[number, number]>(
           ([lng, lat]) => [lat, lng],
