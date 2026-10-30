@@ -46,7 +46,7 @@ export function SelectionToolbar({
       : undefined;
 
   return (
-    <div className="absolute top-4 left-1/2 z-1000 flex max-w-[calc(100%-2rem)] -translate-x-1/2 items-center gap-2 rounded-full bg-card px-3 py-1.5 shadow-card">
+    <div className="absolute top-4 left-1/2 z-1000 flex max-w-[calc(100%-2rem)] -translate-x-1/2 items-center gap-2 rounded-md bg-card px-3 py-1.5 shadow-card">
       <Icon className="size-4 text-muted-foreground/60" />
       <span className="min-w-0 truncate text-label-md">{label}</span>
       {selectedRoute && (
