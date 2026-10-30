@@ -27,4 +27,5 @@ server:
         name: BPSESSION
         http-only: true
         same-site: lax
-      timeout: 12h
+        max-age: 30d
+      timeout: 30d
