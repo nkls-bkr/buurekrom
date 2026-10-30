@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { openNavigation, closeNavigation } from "./helpers/navigation";
 
 declare global {
   interface Window {
@@ -114,6 +115,7 @@ for (const path of ["/", "/share/test-route"]) {
     page,
   }) => {
     await page.goto(path);
+    await openNavigation(page);
     await page
       .getByRole("button", {
         name: "Navigationsmodus einschalten",
@@ -123,6 +125,10 @@ for (const path of ["/", "/share/test-route"]) {
     await expect(onButton(page)).toHaveAttribute("aria-pressed", "true");
     expect(await page.evaluate(() => window.__wakeTest.requests)).toBe(1);
     // The screen setting remains independently controllable during navigation.
+    await closeNavigation(page);
+    expect(await page.evaluate(() => window.__wakeTest.releases)).toBe(0);
+    await openNavigation(page);
+    await expect(onButton(page)).toHaveAttribute("aria-pressed", "true");
     await onButton(page).click();
     await expect(offButton(page)).toHaveAttribute("aria-pressed", "false");
     await expect
@@ -139,6 +145,7 @@ for (const path of ["/", "/share/test-route"]) {
     page,
   }) => {
     await page.goto(path);
+    await openNavigation(page);
     await expect(offButton(page)).toHaveAttribute("aria-pressed", "false");
     expect(await page.evaluate(() => window.__wakeTest.requests)).toBe(0);
     await offButton(page).click();
@@ -159,6 +166,7 @@ test("navigation preserves an already enabled screen lock without duplicating re
   page,
 }) => {
   await page.goto("/");
+  await openNavigation(page);
   await offButton(page).click();
   await expect(onButton(page)).toHaveAttribute("aria-pressed", "true");
   await page
@@ -182,6 +190,7 @@ test("denied compass permission does not enable the screen lock", async ({
   page,
 }) => {
   await page.goto("/");
+  await openNavigation(page);
   await page.evaluate(() =>
     Object.defineProperty(DeviceOrientationEvent, "requestPermission", {
       value: () => Promise.resolve("denied"),
@@ -201,6 +210,7 @@ test("a rejected automatic wake lock leaves navigation usable", async ({
   page,
 }) => {
   await page.goto("/");
+  await openNavigation(page);
   await page.evaluate(() => {
     window.__wakeTest.reject = true;
   });
@@ -224,6 +234,7 @@ test("switching apps releases the lock and returning reacquires it", async ({
   page,
 }) => {
   await page.goto("/");
+  await openNavigation(page);
   await offButton(page).click();
   await expect(onButton(page)).toHaveAttribute("aria-pressed", "true");
   await setHidden(page, true);
@@ -240,6 +251,7 @@ test("a denied request is shown as off and can be retried", async ({
   page,
 }) => {
   await page.goto("/");
+  await openNavigation(page);
   await page.evaluate(() => {
     window.__wakeTest.reject = true;
   });
@@ -261,6 +273,7 @@ test("unsupported browsers show an explanation without requesting a lock", async
   page,
 }) => {
   await page.goto("/");
+  await openNavigation(page);
   await page.evaluate(() =>
     Object.defineProperty(navigator, "wakeLock", { value: undefined }),
   );
@@ -278,6 +291,7 @@ test("system release switches off rather than repeatedly fighting the device", a
   page,
 }) => {
   await page.goto("/");
+  await openNavigation(page);
   await offButton(page).click();
   await expect(onButton(page)).toHaveAttribute("aria-pressed", "true");
   await page.evaluate(() => window.__wakeTest.locks[0].release());
@@ -294,6 +308,7 @@ test("cancelling a pending request releases its late result", async ({
   page,
 }) => {
   await page.goto("/");
+  await openNavigation(page);
   await page.evaluate(() => {
     window.__wakeTest.defer = true;
   });
@@ -312,11 +327,13 @@ for (const deferred of [false, true]) {
     page,
   }) => {
     await page.goto("/");
+    await openNavigation(page);
     await page.evaluate((defer) => {
       window.__wakeTest.defer = defer;
     }, deferred);
     await offButton(page).click();
     await expect(deferred ? pendingButton(page) : onButton(page)).toBeVisible();
+    await closeNavigation(page);
     await page
       .getByRole("button", { name: "Navigation öffnen oder schließen" })
       .click();
@@ -336,6 +353,7 @@ test("a stale request from before a tab switch cannot replace the current lock",
   page,
 }) => {
   await page.goto("/");
+  await openNavigation(page);
   await page.evaluate(() => {
     window.__wakeTest.defer = true;
   });

@@ -4,7 +4,6 @@ import { AttributionControl, MapContainer, TileLayer } from "react-leaflet";
 import { CENTER_OF_GERMANY } from "@/constants.ts";
 import { FitToRoute } from "@/features/routes/components/FitToRoute";
 import { SharedRouteLayer } from "@/features/routes/components/SharedRouteLayer";
-import { LocateButton } from "@/features/map/components/LocateButton";
 import { LocationMarker } from "@/features/map/components/LocationMarker";
 import { useOwnPosition } from "@/features/map/useOwnPosition";
 import type { SharedRouteResponse } from "@/features/routes/api";
@@ -49,10 +48,6 @@ export function SharedRouteMap({ route }: { route: SharedRouteResponse }) {
         <MapNavigationControls
           position={position}
           locationFailed={locationFailed}
-        />
-        <LocateButton
-          position={position}
-          failed={locationFailed}
           onPosition={handlePosition}
           onError={handleLocationError}
           onRequest={handleLocationRequest}

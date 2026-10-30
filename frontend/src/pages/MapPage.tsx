@@ -3,7 +3,6 @@ import { FocusRoute } from "@/features/map/components/FocusRoute";
 import { MapControls } from "@/features/map/components/MapControls";
 import { AttributionControl, MapContainer, TileLayer } from "react-leaflet";
 import { MapCreateDialog } from "@/features/map/components/MapCreateDialog";
-import { LocateButton } from "@/features/map/components/LocateButton";
 import { FieldsLayer } from "@/features/map/components/FieldsLayer";
 import { LocationMarker } from "@/features/map/components/LocationMarker";
 import { RoutesLayer } from "@/features/map/components/RoutesLayer";
@@ -96,10 +95,6 @@ export function MapPage() {
             position={position}
             locationFailed={locationFailed}
             editing={!!editingRoute || creatingRoute}
-          />
-          <LocateButton
-            position={position}
-            failed={locationFailed}
             onPosition={handlePosition}
             onError={handleLocationError}
             onRequest={handleLocationRequest}

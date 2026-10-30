@@ -1,5 +1,5 @@
 import { CompassIcon, Loader2Icon } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { DialogActionButton } from "@/components/ui/dialog-action-button";
 import type { useCompass } from "@/features/map/useCompass";
 
 export function CompassButton({
@@ -18,10 +18,8 @@ export function CompassButton({
         : "Karte nach Kompass ausrichten";
 
   return (
-    <Button
+    <DialogActionButton
       variant={enabled && !paused ? "default" : "outline"}
-      size="icon"
-      className="shadow-card"
       aria-label={label}
       title={label}
       aria-pressed={enabled}
@@ -29,10 +27,11 @@ export function CompassButton({
       onClick={() => void toggle()}
     >
       {waiting && !paused ? (
-        <Loader2Icon className="animate-spin" />
+        <Loader2Icon data-icon="inline-start" className="animate-spin" />
       ) : (
-        <CompassIcon />
+        <CompassIcon data-icon="inline-start" />
       )}
-    </Button>
+      {label}
+    </DialogActionButton>
   );
 }

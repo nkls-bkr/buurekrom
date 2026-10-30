@@ -1,5 +1,5 @@
 import { Loader2Icon, LocateIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { DialogActionButton } from "@/components/ui/dialog-action-button";
 import type { LatLngLiteral } from "leaflet";
 import { useLocate } from "@/features/map/useLocate";
 
@@ -27,12 +27,10 @@ export function LocateButton({
   const loading = (!position && !failed) || requesting;
 
   return (
-    <Button
+    <DialogActionButton
       variant="outline"
-      size="icon"
       onClick={locate}
       disabled={loading}
-      className="shadow-card"
       aria-label={
         loading
           ? "Standort wird ermittelt …"
@@ -40,10 +38,13 @@ export function LocateButton({
       }
     >
       {loading ? (
-        <Loader2Icon className="size-4 animate-spin" />
+        <Loader2Icon data-icon="inline-start" className="animate-spin" />
       ) : (
-        <LocateIcon className="size-4" />
+        <LocateIcon data-icon="inline-start" />
       )}
-    </Button>
+      {loading
+        ? "Standort wird ermittelt …"
+        : "Zum aktuellen Standort springen"}
+    </DialogActionButton>
   );
 }

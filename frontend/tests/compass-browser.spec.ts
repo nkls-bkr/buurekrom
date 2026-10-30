@@ -1,5 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import type { Map } from "leaflet";
+import { openNavigation, closeNavigation } from "./helpers/navigation";
 
 declare global {
   interface Window {
@@ -202,7 +203,36 @@ for (const path of ["/", "/share/test-token"]) {
     page,
   }) => {
     await page.goto(path);
+    await expect(
+      page.getByRole("button", {
+        name: "Navigationsmodus einschalten",
+        exact: true,
+      }),
+    ).toBeHidden();
+    await expect(
+      page.getByRole("button", {
+        name: "Zum aktuellen Standort springen",
+        exact: true,
+      }),
+    ).toBeHidden();
+    await openNavigation(page);
+    for (const label of [
+      "Navigationsmodus einschalten",
+      "Karte nach Kompass ausrichten",
+      "Zum aktuellen Standort springen",
+      "Display wach halten",
+    ]) {
+      await expect(
+        page
+          .getByRole("dialog")
+          .getByRole("button", { name: label, exact: true }),
+      ).toHaveText(label);
+    }
+    await page.screenshot({
+      path: test.info().outputPath("navigation-dialog.png"),
+    });
     await activateNavigation(page);
+    await closeNavigation(page);
     await expectCentered(page, 50, 8);
     expect(
       await page.evaluate(() => window.__testMap.getZoom()),
@@ -220,6 +250,7 @@ for (const path of ["/", "/share/test-token"]) {
     await heading(page, 90);
     await expectBearing(page, 180);
     await expectCentered(page, 50.003, 8.004);
+    await openNavigation(page);
     await page
       .getByRole("button", {
         name: "Navigationsmodus ausschalten",
@@ -244,11 +275,14 @@ test("navigation pauses for drawing and GPS errors and resumes with fresh positi
   page,
 }) => {
   await page.goto("/");
+  await openNavigation(page);
   await activateNavigation(page);
+  await closeNavigation(page);
   await page.getByRole("button", { name: "Neues Element erstellen" }).click();
   await page
     .getByRole("button", { name: "Feld zeichnen", exact: true })
     .click();
+  await openNavigation(page);
   await expect(
     page.getByRole("button", {
       name: "Navigationsmodus beim Zeichnen pausiert",
@@ -260,11 +294,13 @@ test("navigation pauses for drawing and GPS errors and resumes with fresh positi
     center,
   );
   await expectBearing(page, 0);
+  await closeNavigation(page);
   await page.getByRole("button", { name: "Abbrechen", exact: true }).click();
   await heading(page, 135);
   await expectBearing(page, 225);
   await expectCentered(page, 50.001, 8.002);
   await page.evaluate(() => window.__failPosition());
+  await openNavigation(page);
   await expect(
     page.getByRole("button", {
       name: "Navigationsmodus wartet auf Standort – ausschalten",
@@ -281,6 +317,7 @@ test("navigation reuses the compass and cannot remain enabled after sensor failu
   page,
 }) => {
   await page.goto("/");
+  await openNavigation(page);
   await activate(page);
   await page
     .getByRole("button", { name: "Navigationsmodus einschalten", exact: true })
@@ -322,6 +359,7 @@ test("compass rotates routes and fields, keeps markers aligned, and resets north
   page,
 }) => {
   await page.goto("/?route=1");
+  await openNavigation(page);
   await activate(page);
   expect(await page.evaluate(() => window.__permissionCalls)).toBe(1);
   await expect(
@@ -357,6 +395,7 @@ test("Safari headings including north work on shared route maps", async ({
   page,
 }) => {
   await page.goto("/share/test-token");
+  await openNavigation(page);
   await activate(page);
   await heading(page, 120, true);
   await expectBearing(page, 240);
@@ -377,6 +416,7 @@ test("denied permission and missing absolute readings leave the map north", asyn
   page,
 }) => {
   await page.goto("/");
+  await openNavigation(page);
   await page.evaluate(() => {
     window.__permission = "denied";
   });
@@ -427,15 +467,19 @@ for (const action of [
     page,
   }) => {
     await page.goto("/");
+    await openNavigation(page);
     await activate(page);
+    await closeNavigation(page);
     await page.getByRole("button", { name: "Neues Element erstellen" }).click();
     await page.getByRole("button", { name: action, exact: true }).click();
+    await openNavigation(page);
     await expect(
       page.getByRole("button", { name: "Kompass beim Zeichnen pausiert" }),
     ).toBeDisabled();
     await expectBearing(page, 0);
     await heading(page, 180);
     await expectBearing(page, 0);
+    await closeNavigation(page);
     await page.getByRole("button", { name: "Abbrechen", exact: true }).click();
     await heading(page, 135);
     await expectBearing(page, 225);
@@ -446,7 +490,9 @@ test("route points can be dragged after compass rotation and editor entry", asyn
   page,
 }) => {
   await page.goto("/?route=1");
+  await openNavigation(page);
   await activate(page);
+  await closeNavigation(page);
   await page.getByRole("button", { name: "Aktionen für Testroute" }).click();
   await page
     .getByRole("button", { name: "Route bearbeiten", exact: true })
@@ -482,6 +528,7 @@ test("browsers without a permission method can use absolute orientation", async 
   page,
 }) => {
   await page.goto("/");
+  await openNavigation(page);
   await page.evaluate(() =>
     Object.defineProperty(DeviceOrientationEvent, "requestPermission", {
       value: undefined,
@@ -495,6 +542,7 @@ test("cancelling a pending permission request cannot enable the compass later", 
   page,
 }) => {
   await page.goto("/");
+  await openNavigation(page);
   await page.evaluate(() =>
     Object.defineProperty(DeviceOrientationEvent, "requestPermission", {
       value: () =>
@@ -524,6 +572,7 @@ test("a stationary heading remains active and returning to the tab waits for fre
   page,
 }) => {
   await page.goto("/");
+  await openNavigation(page);
   await activate(page);
   await page.clock.install();
   await page.clock.fastForward(9000);
@@ -568,7 +617,9 @@ test("new route points retain the tapped coordinates after compass rotation", as
     }),
   );
   await page.goto("/");
+  await openNavigation(page);
   await activate(page);
+  await closeNavigation(page);
   await page.getByRole("button", { name: "Neues Element erstellen" }).click();
   await page
     .getByRole("button", { name: "Route zeichnen", exact: true })
