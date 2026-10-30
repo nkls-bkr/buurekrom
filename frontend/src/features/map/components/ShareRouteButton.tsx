@@ -66,10 +66,10 @@ export function ShareRouteButton({
         variant={showLabel ? "outline" : "ghost"}
         size={showLabel ? "default" : "icon-sm"}
         onClick={openDialog}
-        aria-label="Route teilen"
+        aria-label="Link teilen"
       >
-        <Share2Icon className="size-4" />
-        {showLabel && "Route teilen"}
+        <Share2Icon data-icon="inline-start" />
+        {showLabel && "Link teilen"}
       </TriggerButton>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>

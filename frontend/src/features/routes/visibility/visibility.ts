@@ -3,6 +3,7 @@
 export interface RouteVisibilityContextValue {
   visibleRouteIds: Set<number>;
   toggleRoute: (routeId: number) => void;
+  showRoute: (routeId: number) => void;
   showAll: (routeIds: number[]) => void;
   hideAll: () => void;
   isVisible: (routeId: number) => boolean;

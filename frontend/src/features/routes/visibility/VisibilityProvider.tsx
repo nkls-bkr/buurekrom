@@ -22,6 +22,10 @@ export function VisibilityProvider({ children }: VisibilityProviderProps) {
     });
   }, []);
 
+  const showRoute = useCallback((routeId: number) => {
+    setVisibleRouteIds((previous) => new Set(previous).add(routeId));
+  }, []);
+
   const showAll = useCallback((routeIds: number[]) => {
     setVisibleRouteIds(new Set(routeIds));
   }, []);
@@ -36,8 +40,15 @@ export function VisibilityProvider({ children }: VisibilityProviderProps) {
   );
 
   const value = useMemo(
-    () => ({ visibleRouteIds, toggleRoute, showAll, hideAll, isVisible }),
-    [visibleRouteIds, toggleRoute, showAll, hideAll, isVisible],
+    () => ({
+      visibleRouteIds,
+      toggleRoute,
+      showRoute,
+      showAll,
+      hideAll,
+      isVisible,
+    }),
+    [visibleRouteIds, toggleRoute, showRoute, showAll, hideAll, isVisible],
   );
 
   return (

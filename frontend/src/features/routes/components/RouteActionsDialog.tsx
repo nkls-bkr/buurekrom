@@ -2,6 +2,7 @@ import { useState } from "react";
 import {
   EllipsisIcon,
   EyeIcon,
+  EyeOffIcon,
   MapIcon,
   PencilIcon,
   Trash2Icon,
@@ -9,6 +10,7 @@ import {
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { DialogActionButton } from "@/components/ui/dialog-action-button";
+import { Separator } from "@/components/ui/separator";
 import {
   Dialog,
   DialogContent,
@@ -89,7 +91,7 @@ export function RouteActionsDialog({
         <DialogHeader>
           <DialogTitle>
             {confirmDelete
-              ? "Route löschen?"
+              ? "Route dauerhaft löschen?"
               : route.name || `Route #${route.id}`}
           </DialogTitle>
           <DialogDescription>
@@ -105,7 +107,7 @@ export function RouteActionsDialog({
               disabled={remove.isPending}
               onClick={deleteRoute}
             >
-              {remove.isPending ? "Löschen …" : "Route löschen"}
+              {remove.isPending ? "Löschen …" : "Dauerhaft löschen"}
             </Button>
             <Button
               variant="outline"
@@ -118,25 +120,30 @@ export function RouteActionsDialog({
         ) : (
           <div className="flex flex-col gap-2">
             <DialogActionButton onClick={() => run(onEdit)}>
-              <PencilIcon /> Route bearbeiten
+              <PencilIcon data-icon="inline-start" /> Bearbeiten
             </DialogActionButton>
             <ShareRouteButton routeId={route.id} showLabel />
             {onShowOnMap && (
               <DialogActionButton onClick={() => run(onShowOnMap)}>
-                <MapIcon /> Auf Karte zeigen
+                <MapIcon data-icon="inline-start" /> Auf der Karte ansehen
               </DialogActionButton>
             )}
             {onToggleVisibility && (
               <DialogActionButton onClick={() => run(onToggleVisibility)}>
-                <EyeIcon />{" "}
-                {visible ? "Auf Karte ausblenden" : "Auf Karte einblenden"}
+                {visible ? (
+                  <EyeOffIcon data-icon="inline-start" />
+                ) : (
+                  <EyeIcon data-icon="inline-start" />
+                )}
+                {visible ? "Von der Karte ausblenden" : "Zur Karte hinzufügen"}
               </DialogActionButton>
             )}
+            <Separator className="my-2" />
             <DialogActionButton
-              className="text-destructive hover:text-destructive"
+              variant="destructive"
               onClick={() => setConfirmDelete(true)}
             >
-              <Trash2Icon /> Route löschen
+              <Trash2Icon data-icon="inline-start" /> Dauerhaft löschen
             </DialogActionButton>
           </div>
         )}

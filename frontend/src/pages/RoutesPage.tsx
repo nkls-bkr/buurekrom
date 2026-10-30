@@ -1,7 +1,26 @@
-import { useNavigate, useSearchParams } from "react-router-dom";
-import { RouteIcon, SearchIcon } from "lucide-react";
+import { useState } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import {
+  EllipsisIcon,
+  EyeIcon,
+  EyeOffIcon,
+  MapIcon,
+  PlusIcon,
+  RouteIcon,
+} from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { DialogActionButton } from "@/components/ui/dialog-action-button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { RouteActionsDialog } from "@/features/routes/components/RouteActionsDialog";
+import { AddRoutesDialog } from "@/features/routes/components/AddRoutesDialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useRoutes } from "@/features/routes/api";
@@ -14,134 +33,123 @@ import {
 export function RoutesPage() {
   const navigate = useNavigate();
   const { data: routes = [], isPending, isError, refetch } = useRoutes();
-  const { isVisible, toggleRoute, showAll, hideAll } = useRouteVisibility();
+  const { isVisible, toggleRoute, showRoute, showAll, hideAll } =
+    useRouteVisibility();
   const { selection, clear } = useSelection();
   const [searchParams, setSearchParams] = useSearchParams();
+  const [adding, setAdding] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
   const search = searchParams.get("q") ?? "";
-  const filter = searchParams.get("visibility") ?? "all";
-  const visibility =
-    filter === "visible" || filter === "hidden" ? filter : "all";
   const query = search.trim().toLocaleLowerCase("de");
-  const visibleCount = routes.filter((route) => isVisible(route.id)).length;
-  const filteredRoutes = routes.filter((route) => {
-    const matchesSearch = `${route.name ?? ""} Route #${route.id}`
+  const visibleRoutes = routes.filter((route) => isVisible(route.id));
+  const filteredRoutes = visibleRoutes.filter((route) =>
+    `${route.name ?? ""} Route #${route.id}`
       .toLocaleLowerCase("de")
-      .includes(query);
-    const matchesVisibility =
-      visibility === "all" ||
-      (visibility === "visible" ? isVisible(route.id) : !isVisible(route.id));
-    return matchesSearch && matchesVisibility;
-  });
+      .includes(query),
+  );
 
-  function updateFilter(key: string, value: string) {
+  function updateSearch(value: string) {
     setSearchParams(
       (previous) => {
         const next = new URLSearchParams(previous);
-        if (value) next.set(key, value);
-        else next.delete(key);
+        next.delete("visibility");
+        if (value) next.set("q", value);
+        else next.delete("q");
         return next;
       },
       { replace: true },
     );
   }
 
-  function toggleVisibility(routeId: number) {
-    if (
-      isVisible(routeId) &&
-      selection?.kind === SelectionKind.Route &&
-      selection.id === routeId
-    ) {
+  function hideRoute(routeId: number) {
+    if (selection?.kind === SelectionKind.Route && selection.id === routeId)
       clear();
-    }
     toggleRoute(routeId);
+    toast("Route ausgeblendet", {
+      action: { label: "Rückgängig", onClick: () => showRoute(routeId) },
+    });
   }
 
   function hideAllRoutes() {
+    const previousIds = visibleRoutes.map((route) => route.id);
     hideAll();
     if (selection?.kind === SelectionKind.Route) clear();
+    setMoreOpen(false);
+    toast("Alle Routen ausgeblendet", {
+      action: {
+        label: "Rückgängig",
+        onClick: () => previousIds.forEach(showRoute),
+      },
+    });
   }
 
   return (
     <main className="h-full overflow-y-auto bg-background">
       <div className="safe-page-content mx-auto flex max-w-4xl flex-col gap-6 p-4 md:p-8">
         <header className="flex flex-wrap items-start justify-between gap-4">
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             <h1 className="font-display text-headline-md font-semibold">
-              Routen
+              Routen auf der Karte
             </h1>
             <p className="max-w-xl text-sm text-muted-foreground">
-              Finde deine Routen und wähle aus, welche auf der Karte erscheinen.
+              Tippe auf eine Route, um sie auf der Karte anzusehen.
             </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              onClick={() => setAdding(true)}
+              disabled={isPending || isError}
+            >
+              <PlusIcon data-icon="inline-start" /> Routen hinzufügen
+            </Button>
+            <Dialog open={moreOpen} onOpenChange={setMoreOpen}>
+              <DialogTrigger
+                render={
+                  <Button
+                    variant="ghost"
+                    disabled={isPending || isError || routes.length === 0}
+                  />
+                }
+              >
+                <EllipsisIcon data-icon="inline-start" /> Weitere Aktionen
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Weitere Aktionen</DialogTitle>
+                  <DialogDescription>
+                    Ändere, welche Routen auf der Karte erscheinen. Deine
+                    gespeicherten Routen bleiben erhalten.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="flex flex-col gap-2">
+                  <DialogActionButton
+                    disabled={visibleRoutes.length === routes.length}
+                    onClick={() => {
+                      showAll(routes.map((route) => route.id));
+                      updateSearch("");
+                      setMoreOpen(false);
+                    }}
+                  >
+                    <EyeIcon data-icon="inline-start" /> Alle einblenden
+                  </DialogActionButton>
+                  <DialogActionButton
+                    disabled={visibleRoutes.length === 0}
+                    onClick={hideAllRoutes}
+                  >
+                    <EyeOffIcon data-icon="inline-start" /> Alle ausblenden
+                  </DialogActionButton>
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
         </header>
 
-        <section
-          aria-label="Routen suchen und filtern"
-          className="flex flex-col gap-4 rounded-xl border bg-card p-4"
-        >
-          <div className="grid gap-4 sm:grid-cols-[1fr_auto]">
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="route-search">Routen suchen</Label>
-              <div className="relative">
-                <SearchIcon className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  id="route-search"
-                  type="search"
-                  placeholder="Name oder Routennummer …"
-                  className="pl-10"
-                  value={search}
-                  onChange={(event) => updateFilter("q", event.target.value)}
-                />
-              </div>
-            </div>
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="route-visibility">
-                Sichtbarkeit auf der Karte
-              </Label>
-              <select
-                id="route-visibility"
-                value={visibility}
-                onChange={(event) =>
-                  updateFilter(
-                    "visibility",
-                    event.target.value === "all" ? "" : event.target.value,
-                  )
-                }
-                className="h-9 rounded-lg border border-input bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              >
-                <option value="all">Alle Routen</option>
-                <option value="visible">Eingeblendet</option>
-                <option value="hidden">Ausgeblendet</option>
-              </select>
-            </div>
-          </div>
-          <div className="flex flex-wrap items-center justify-between gap-3 border-t pt-4">
-            <p className="text-sm text-muted-foreground" aria-live="polite">
-              {visibleCount} von {routes.length} Routen auf der Karte
-              eingeblendet
-            </p>
-            <div className="flex flex-wrap gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={
-                  isPending || isError || visibleCount === routes.length
-                }
-                onClick={() => showAll(routes.map((route) => route.id))}
-              >
-                Alle einblenden
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={isPending || isError || visibleCount === 0}
-                onClick={hideAllRoutes}
-              >
-                Alle ausblenden
-              </Button>
-            </div>
-          </div>
-        </section>
+        <AddRoutesDialog
+          open={adding}
+          onOpenChange={setAdding}
+          routes={routes}
+          onAdded={() => updateSearch("")}
+        />
 
         {isPending ? (
           <p role="status" className="py-8 text-center text-muted-foreground">
@@ -154,27 +162,49 @@ export function RoutesPage() {
               Erneut versuchen
             </Button>
           </div>
-        ) : routes.length === 0 ? (
-          <div className="space-y-2 py-8 text-center text-muted-foreground">
-            <RouteIcon className="mx-auto size-8" />
-            <p>Noch keine Routen vorhanden.</p>
-            <p className="text-sm">Zeichne deine erste Route auf der Karte.</p>
-          </div>
+        ) : visibleRoutes.length === 0 ? (
+          <section
+            aria-label="Keine Routen auf der Karte"
+            className="flex flex-col items-center gap-3 py-8 text-center"
+          >
+            <RouteIcon className="size-8 text-muted-foreground" />
+            <h2 className="font-medium">Noch keine Routen auf der Karte</h2>
+            <p className="max-w-sm text-sm text-muted-foreground">
+              {routes.length === 0
+                ? "Es sind noch keine Routen gespeichert. Zeichne deine erste Route auf der Karte."
+                : "Füge gespeicherte Routen hinzu, um sie hier und auf der Karte zu sehen."}
+            </p>
+            <Button onClick={() => setAdding(true)}>
+              <PlusIcon data-icon="inline-start" /> Routen hinzufügen
+            </Button>
+          </section>
         ) : (
-          <section aria-label="Gefundene Routen" className="space-y-3">
+          <section
+            aria-label="Eingeblendete Routen"
+            className="flex flex-col gap-4"
+          >
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="route-search">Eingeblendete Routen suchen</Label>
+              <Input
+                id="route-search"
+                type="search"
+                placeholder="Name oder Routennummer …"
+                value={search}
+                onChange={(event) => updateSearch(event.target.value)}
+              />
+            </div>
             <p className="text-sm text-muted-foreground" role="status">
-              {filteredRoutes.length} Routen gefunden
+              {query
+                ? `${filteredRoutes.length} Treffer`
+                : `${visibleRoutes.length} Routen auf der Karte`}
             </p>
             {filteredRoutes.length === 0 ? (
               <div className="flex flex-col items-center gap-3 py-8">
                 <p className="text-muted-foreground">
-                  Keine Routen für diese Suche und Filter gefunden.
+                  Keine eingeblendeten Routen für diese Suche gefunden.
                 </p>
-                <Button
-                  variant="outline"
-                  onClick={() => setSearchParams({}, { replace: true })}
-                >
-                  Filter zurücksetzen
+                <Button variant="outline" onClick={() => updateSearch("")}>
+                  Suche zurücksetzen
                 </Button>
               </div>
             ) : (
@@ -182,27 +212,28 @@ export function RoutesPage() {
                 {filteredRoutes.map((route) => (
                   <li
                     key={route.id}
-                    className="flex flex-wrap items-center gap-x-4 px-4 py-3 hover:bg-muted/50"
+                    className="flex items-center gap-2 px-4 py-2"
                   >
-                    <div className="flex min-h-10 min-w-0 flex-1 items-center gap-3">
+                    <Link
+                      to={`/?route=${route.id}`}
+                      aria-label={`${route.name || `Route #${route.id}`} auf der Karte ansehen`}
+                      className="flex min-h-12 min-w-0 flex-1 items-center gap-3 rounded-lg py-2 hover:bg-muted/50 focus-visible:outline-2 focus-visible:outline-ring"
+                    >
+                      <MapIcon className="size-5 shrink-0 text-muted-foreground" />
                       <span className="min-w-0 flex-1">
                         <span className="block break-words font-medium">
                           {route.name || `Route #${route.id}`}
                         </span>
                         <span className="text-xs text-muted-foreground">
-                          Route #{route.id} ·{" "}
-                          {isVisible(route.id)
-                            ? "Eingeblendet"
-                            : "Ausgeblendet"}
+                          Auf der Karte ansehen
                         </span>
                       </span>
-                    </div>
+                    </Link>
                     <RouteActionsDialog
                       route={route}
                       onEdit={() => navigate(`/?route=${route.id}&edit=1`)}
-                      onShowOnMap={() => navigate(`/?route=${route.id}`)}
-                      onToggleVisibility={() => toggleVisibility(route.id)}
-                      visible={isVisible(route.id)}
+                      onToggleVisibility={() => hideRoute(route.id)}
+                      visible
                     />
                   </li>
                 ))}
