@@ -15,7 +15,7 @@ export function MapControls({ children }: { children: ReactNode }) {
   return (
     <div
       ref={ref}
-      className="map-controls absolute z-1000 flex flex-col-reverse gap-4"
+      className="map-controls absolute z-1000 flex flex-col-reverse gap-2"
     >
       {children}
     </div>
